@@ -57,6 +57,8 @@ export function ApiKeyModal({
   const [activeTab, setActiveTab] = useState<'provider' | 'websearch'>('provider');
   const [testingKey, setTestingKey] = useState(false);
   const [keyTestResult, setKeyTestResult] = useState<{ valid: boolean; error?: string } | null>(null);
+  const [testingWebSearch, setTestingWebSearch] = useState(false);
+  const [webSearchTestResult, setWebSearchTestResult] = useState<{ valid: boolean; error?: string } | null>(null);
 
   useEffect(() => {
     if (open) {
@@ -64,8 +66,14 @@ export function ApiKeyModal({
       setTavilyKey(tavilyApiKey || '');
       setWebKey(webSearchApiKey || '');
       setKeyTestResult(null);
+      setWebSearchTestResult(null);
     }
   }, [open, currentKey, tavilyApiKey, webSearchApiKey]);
+
+  // Reset web search test result when keys change
+  useEffect(() => {
+    setWebSearchTestResult(null);
+  }, [tavilyKey, webKey, webSearchProvider]);
 
   // Reset test result when API key changes
   useEffect(() => {
@@ -97,6 +105,32 @@ export function ApiKeyModal({
       setKeyTestResult({ valid: false, error: 'Connection failed' });
     } finally {
       setTestingKey(false);
+    }
+  };
+
+  const testWebSearchKey = async () => {
+    const keyToTest = webSearchProvider === 'tavily' ? tavilyKey : webKey;
+    if (!keyToTest.trim() || webSearchProvider === 'none') return;
+
+    setTestingWebSearch(true);
+    setWebSearchTestResult(null);
+
+    try {
+      const response = await fetch('/api/verify-websearch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          provider: webSearchProvider,
+          apiKey: keyToTest.trim()
+        })
+      });
+
+      const result = await response.json();
+      setWebSearchTestResult(result);
+    } catch (err) {
+      setWebSearchTestResult({ valid: false, error: 'Connection failed' });
+    } finally {
+      setTestingWebSearch(false);
     }
   };
 
@@ -398,26 +432,61 @@ export function ApiKeyModal({
                     <ExternalLink className="w-3 h-3" />
                   </a>
                 </div>
-                <div className="relative">
-                  <Input
-                    type={showTavilyKey ? 'text' : 'password'}
-                    value={tavilyKey}
-                    onChange={(e) => setTavilyKey(e.target.value)}
-                    placeholder="tvly-..."
-                    className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500 pr-10"
-                  />
-                  <button
+                <div className="flex gap-2">
+                  <div className="relative flex-1">
+                    <Input
+                      type={showTavilyKey ? 'text' : 'password'}
+                      value={tavilyKey}
+                      onChange={(e) => setTavilyKey(e.target.value)}
+                      placeholder="tvly-..."
+                      className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500 pr-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowTavilyKey(!showTavilyKey)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300"
+                    >
+                      {showTavilyKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                  <Button
                     type="button"
-                    onClick={() => setShowTavilyKey(!showTavilyKey)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300"
+                    variant="outline"
+                    onClick={testWebSearchKey}
+                    disabled={!tavilyKey.trim() || testingWebSearch}
+                    className="border-purple-500/50 text-purple-300 hover:text-white hover:bg-purple-500/20 whitespace-nowrap"
                   >
-                    {showTavilyKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
+                    {testingWebSearch ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      'Test'
+                    )}
+                  </Button>
                 </div>
-                {tavilyKey && (
+                {/* Test Result */}
+                {webSearchTestResult && (
+                  <div className={`flex items-center gap-2 text-xs px-3 py-2 rounded-lg border ${
+                    webSearchTestResult.valid
+                      ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                      : 'bg-red-500/10 text-red-400 border-red-500/20'
+                  }`}>
+                    {webSearchTestResult.valid ? (
+                      <>
+                        <CheckCircle2 className="w-4 h-4" />
+                        <span>Connection successful - Tavily API key is valid</span>
+                      </>
+                    ) : (
+                      <>
+                        <XCircle className="w-4 h-4" />
+                        <span>{webSearchTestResult.error || 'Invalid API key'}</span>
+                      </>
+                    )}
+                  </div>
+                )}
+                {!webSearchTestResult && tavilyKey && (
                   <div className="flex items-center gap-2 text-xs text-purple-400">
                     <Check className="w-3 h-3" />
-                    Tavily API key configured
+                    Tavily API key configured - click Test to verify
                   </div>
                 )}
               </div>
@@ -440,26 +509,61 @@ export function ApiKeyModal({
                     <ExternalLink className="w-3 h-3" />
                   </a>
                 </div>
-                <div className="relative">
-                  <Input
-                    type={showWebKey ? 'text' : 'password'}
-                    value={webKey}
-                    onChange={(e) => setWebKey(e.target.value)}
-                    placeholder="Enter your WebSearchAPI key"
-                    className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500 pr-10"
-                  />
-                  <button
+                <div className="flex gap-2">
+                  <div className="relative flex-1">
+                    <Input
+                      type={showWebKey ? 'text' : 'password'}
+                      value={webKey}
+                      onChange={(e) => setWebKey(e.target.value)}
+                      placeholder="Enter your WebSearchAPI key"
+                      className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500 pr-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowWebKey(!showWebKey)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300"
+                    >
+                      {showWebKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                  <Button
                     type="button"
-                    onClick={() => setShowWebKey(!showWebKey)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300"
+                    variant="outline"
+                    onClick={testWebSearchKey}
+                    disabled={!webKey.trim() || testingWebSearch}
+                    className="border-cyan-500/50 text-cyan-300 hover:text-white hover:bg-cyan-500/20 whitespace-nowrap"
                   >
-                    {showWebKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
+                    {testingWebSearch ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      'Test'
+                    )}
+                  </Button>
                 </div>
-                {webKey && (
+                {/* Test Result */}
+                {webSearchTestResult && (
+                  <div className={`flex items-center gap-2 text-xs px-3 py-2 rounded-lg border ${
+                    webSearchTestResult.valid
+                      ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                      : 'bg-red-500/10 text-red-400 border-red-500/20'
+                  }`}>
+                    {webSearchTestResult.valid ? (
+                      <>
+                        <CheckCircle2 className="w-4 h-4" />
+                        <span>Connection successful - WebSearchAPI key is valid</span>
+                      </>
+                    ) : (
+                      <>
+                        <XCircle className="w-4 h-4" />
+                        <span>{webSearchTestResult.error || 'Invalid API key'}</span>
+                      </>
+                    )}
+                  </div>
+                )}
+                {!webSearchTestResult && webKey && (
                   <div className="flex items-center gap-2 text-xs text-cyan-400">
                     <Check className="w-3 h-3" />
-                    WebSearchAPI key configured
+                    WebSearchAPI key configured - click Test to verify
                   </div>
                 )}
               </div>
