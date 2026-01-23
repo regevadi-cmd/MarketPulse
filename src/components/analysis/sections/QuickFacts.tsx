@@ -23,12 +23,12 @@ export function QuickFacts({ facts }: QuickFactsProps) {
       <div className="space-y-2">
         {entries.map(([key, value]) => (
           <div key={key} className="flex justify-between text-sm">
-            <span className="text-zinc-500">{factLabels[key] || key}</span>
-            <span className="text-zinc-200 font-medium">{value}</span>
+            <span className="text-muted-foreground">{factLabels[key] || key}</span>
+            <span className="text-foreground font-medium">{value}</span>
           </div>
         ))}
         {entries.length === 0 && (
-          <p className="text-zinc-500 text-sm">No data available</p>
+          <p className="text-muted-foreground text-sm">No data available</p>
         )}
       </div>
     </SectionCard>

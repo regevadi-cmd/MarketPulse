@@ -11,12 +11,12 @@ export function GrowthInitiatives({ initiatives }: GrowthInitiativesProps) {
       <ul className="space-y-2">
         {initiatives.slice(0, 5).map((initiative, i) => (
           <li key={i} className="flex items-start gap-2 text-sm">
-            <span className="text-amber-500 font-bold flex-shrink-0">{i + 1}.</span>
-            <span className="text-zinc-300">{initiative}</span>
+            <span className="text-amber-600 dark:text-amber-500 font-bold flex-shrink-0">{i + 1}.</span>
+            <span className="text-foreground">{initiative}</span>
           </li>
         ))}
         {initiatives.length === 0 && (
-          <li className="text-zinc-500 text-sm">No data available</li>
+          <li className="text-muted-foreground text-sm">No data available</li>
         )}
       </ul>
     </SectionCard>

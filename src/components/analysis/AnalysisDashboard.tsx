@@ -87,7 +87,7 @@ export function AnalysisDashboard({
       <div className="flex flex-col gap-3 sm:gap-4">
         {/* Company Name + Sentiment */}
         <div className="flex flex-wrap items-center gap-2 sm:gap-4">
-          <h2 className="text-2xl sm:text-3xl font-bold text-white">{companyName}</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold text-foreground">{companyName}</h2>
           <SentimentBadge sentiment={data.sentiment} />
         </div>
 
@@ -110,8 +110,8 @@ export function AnalysisDashboard({
             {isCached && (
               <div className={`flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium ${
                 isStale
-                  ? 'bg-amber-500/10 border border-amber-500/30 text-amber-400'
-                  : 'bg-zinc-500/10 border border-zinc-500/30 text-zinc-400'
+                  ? 'bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400'
+                  : 'bg-muted border border-border text-muted-foreground'
               }`}>
                 <Database className="w-3 h-3" />
                 <span className="hidden sm:inline">Cached {getRelativeTime(cachedDataTimestamp!)}</span>
@@ -145,10 +145,10 @@ export function AnalysisDashboard({
                 size="sm"
                 onClick={onRefresh}
                 disabled={isRefreshing}
-                className={`border-zinc-700 transition-colors h-8 px-2 sm:px-3 ${
+                className={`border-border transition-colors h-8 px-2 sm:px-3 ${
                   isStale || isSharedCacheStale
-                    ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/50 hover:bg-emerald-500/30'
-                    : 'text-zinc-400 hover:text-white hover:bg-zinc-800'
+                    ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border-emerald-500/50 hover:bg-emerald-500/30'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-accent'
                 }`}
               >
                 <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
@@ -159,10 +159,10 @@ export function AnalysisDashboard({
               variant="outline"
               size="sm"
               onClick={onToggleBookmark}
-              className={`border-zinc-700 transition-colors h-8 px-2 sm:px-3 ${
+              className={`border-border transition-colors h-8 px-2 sm:px-3 ${
                 isBookmarked
-                  ? 'bg-amber-500/20 text-amber-400 border-amber-500/50 hover:bg-amber-500/30'
-                  : 'text-zinc-400 hover:text-white hover:bg-zinc-800'
+                  ? 'bg-amber-500/20 text-amber-600 dark:text-amber-400 border-amber-500/50 hover:bg-amber-500/30'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-accent'
               }`}
             >
               {isBookmarked ? (
@@ -252,7 +252,7 @@ export function AnalysisDashboard({
           <div className="flex-1">
             <h4 className="text-amber-400 font-medium text-sm">Web Search Unavailable</h4>
             <p className="text-amber-400/70 text-xs mt-1">{webSearchError}</p>
-            <p className="text-zinc-500 text-xs mt-2 hidden sm:block">
+            <p className="text-muted-foreground text-xs mt-2 hidden sm:block">
               Links in news, case studies, and investor documents may not work.
               Check your WebSearchAPI key in settings, or switch to Gemini/Perplexity for built-in web grounding.
             </p>

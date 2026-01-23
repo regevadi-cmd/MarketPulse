@@ -26,9 +26,9 @@ const sentimentConfig = {
     icon: Minus
   },
   NEUTRAL: {
-    bg: 'bg-zinc-500/20',
-    text: 'text-zinc-400',
-    border: 'border-zinc-500/50',
+    bg: 'bg-muted',
+    text: 'text-muted-foreground',
+    border: 'border-border',
     icon: HelpCircle
   }
 };

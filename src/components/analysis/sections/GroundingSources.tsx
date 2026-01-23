@@ -16,8 +16,8 @@ export function GroundingSources({ sources }: GroundingSourcesProps) {
   if (!sources || sources.length === 0) return null;
 
   return (
-    <div className="mt-8 p-5 bg-zinc-900/50 rounded-xl border border-zinc-800">
-      <h3 className="text-sm font-semibold text-zinc-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+    <div className="mt-8 p-5 bg-card/50 dark:bg-muted/50 rounded-xl border border-border">
+      <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4 flex items-center gap-2">
         <LinkIcon className="w-4 h-4" />
         Grounding Sources
       </h3>
@@ -28,7 +28,7 @@ export function GroundingSources({ sources }: GroundingSourcesProps) {
             href={url}
             target="_blank"
             rel="noopener noreferrer"
-            className="px-3 py-1 bg-zinc-800 hover:bg-zinc-700 rounded-full text-xs text-zinc-400 hover:text-zinc-200 transition-colors truncate max-w-xs"
+            className="px-3 py-1 bg-muted hover:bg-accent rounded-full text-xs text-muted-foreground hover:text-foreground transition-colors truncate max-w-xs"
           >
             {extractHostname(url)}
           </a>

@@ -35,7 +35,7 @@ function getRegulatorColor(body: string): string {
   }
 
   // Default color
-  return 'bg-zinc-500/20 text-zinc-400 border-zinc-500/30';
+  return 'bg-muted text-muted-foreground border-border';
 }
 
 export function RegulatoryLandscape({ regulators }: RegulatoryLandscapeProps) {
@@ -46,14 +46,14 @@ export function RegulatoryLandscape({ regulators }: RegulatoryLandscapeProps) {
           regulators.map((regulator, i) => (
             <div
               key={i}
-              className="p-3 bg-zinc-900/50 rounded-lg"
+              className="p-3 bg-card/50 dark:bg-muted/50 rounded-lg"
             >
               <div className="flex items-start gap-3">
                 <span className={`px-2 py-1 rounded text-xs font-semibold border ${getRegulatorColor(regulator.body)}`}>
                   {regulator.body}
                 </span>
                 <div className="flex-1 min-w-0">
-                  <p className="text-zinc-300 text-sm">
+                  <p className="text-foreground text-sm">
                     {regulator.context}
                   </p>
                   {regulator.url && (
@@ -61,7 +61,7 @@ export function RegulatoryLandscape({ regulators }: RegulatoryLandscapeProps) {
                       href={regulator.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 text-cyan-400 hover:text-cyan-300 text-xs mt-2 transition-colors"
+                      className="inline-flex items-center gap-1.5 text-cyan-600 dark:text-cyan-400 hover:text-cyan-500 dark:hover:text-cyan-300 text-xs mt-2 transition-colors"
                     >
                       <ExternalLink className="w-3 h-3" />
                       View source
@@ -72,7 +72,7 @@ export function RegulatoryLandscape({ regulators }: RegulatoryLandscapeProps) {
             </div>
           ))
         ) : (
-          <p className="text-zinc-500 text-sm">No regulatory information found</p>
+          <p className="text-muted-foreground text-sm">No regulatory information found</p>
         )}
       </div>
     </SectionCard>

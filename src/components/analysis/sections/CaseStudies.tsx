@@ -39,18 +39,18 @@ export function CaseStudies({ studies }: CaseStudiesProps) {
                         {study.title}
                       </span>
                       {study.summary && (
-                        <p className="text-zinc-500 text-xs mt-1 line-clamp-2">{study.summary}</p>
+                        <p className="text-muted-foreground text-xs mt-1 line-clamp-2">{study.summary}</p>
                       )}
                     </div>
                   </div>
                 </a>
               ) : (
                 <div className="flex items-start gap-2">
-                  <LinkIcon className="w-4 h-4 text-zinc-600 mt-0.5 flex-shrink-0" />
+                  <LinkIcon className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
                   <div className="flex-1 min-w-0">
-                    <span className="text-zinc-400 font-medium text-sm line-clamp-2">{study.title}</span>
+                    <span className="text-muted-foreground font-medium text-sm line-clamp-2">{study.title}</span>
                     {study.summary && (
-                      <p className="text-zinc-500 text-xs mt-1 line-clamp-2">{study.summary}</p>
+                      <p className="text-muted-foreground text-xs mt-1 line-clamp-2">{study.summary}</p>
                     )}
                   </div>
                 </div>
@@ -59,7 +59,7 @@ export function CaseStudies({ studies }: CaseStudiesProps) {
           );
         })}
         {studies.length === 0 && (
-          <p className="text-zinc-500 text-sm">No case studies found</p>
+          <p className="text-muted-foreground text-sm">No case studies found</p>
         )}
       </div>
     </SectionCard>

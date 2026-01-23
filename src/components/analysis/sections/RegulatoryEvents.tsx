@@ -18,7 +18,7 @@ const EVENT_TYPE_INFO: Record<string, { color: string; label: string }> = {
   consent: { color: 'bg-purple-500/20 text-purple-400 border-purple-500/30', label: 'Consent Order' },
   order: { color: 'bg-indigo-500/20 text-indigo-400 border-indigo-500/30', label: 'Order' },
   action: { color: 'bg-pink-500/20 text-pink-400 border-pink-500/30', label: 'Action' },
-  other: { color: 'bg-zinc-500/20 text-zinc-400 border-zinc-500/30', label: 'Other' },
+  other: { color: 'bg-muted text-muted-foreground border-border', label: 'Other' },
 };
 
 function getEventTypeInfo(eventType: string) {
@@ -29,7 +29,7 @@ export function RegulatoryEvents({ events }: RegulatoryEventsProps) {
   return (
     <SectionCard title="Regulatory Events" icon={AlertTriangle} color="red">
       <div className="space-y-3">
-        <p className="text-zinc-500 text-xs mb-3">
+        <p className="text-muted-foreground text-xs mb-3">
           Enforcement actions, fines, and settlements from the past 5 years
         </p>
 
@@ -44,16 +44,16 @@ export function RegulatoryEvents({ events }: RegulatoryEventsProps) {
                   <span className={`px-2 py-0.5 rounded text-xs font-semibold border ${typeInfo.color}`}>
                     {typeInfo.label}
                   </span>
-                  <span className="flex items-center gap-1 text-zinc-500 text-xs">
+                  <span className="flex items-center gap-1 text-muted-foreground text-xs">
                     <Building2 className="w-3 h-3" />
                     {event.regulatoryBody}
                   </span>
-                  <span className="flex items-center gap-1 text-zinc-500 text-xs">
+                  <span className="flex items-center gap-1 text-muted-foreground text-xs">
                     <Calendar className="w-3 h-3" />
                     {event.date}
                   </span>
                   {event.amount && (
-                    <span className="flex items-center gap-1 text-red-400 text-xs font-medium">
+                    <span className="flex items-center gap-1 text-red-600 dark:text-red-400 text-xs font-medium">
                       <DollarSign className="w-3 h-3" />
                       {event.amount}
                     </span>
@@ -61,11 +61,11 @@ export function RegulatoryEvents({ events }: RegulatoryEventsProps) {
                 </div>
 
                 <div className="flex items-start justify-between gap-2">
-                  <p className="text-zinc-300 text-sm line-clamp-2 group-hover:text-white transition-colors">
+                  <p className="text-foreground text-sm line-clamp-2 group-hover:text-foreground/80 transition-colors">
                     {event.description}
                   </p>
                   {hasUrl && (
-                    <ExternalLink className="w-4 h-4 text-zinc-500 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity mt-0.5" />
+                    <ExternalLink className="w-4 h-4 text-muted-foreground flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity mt-0.5" />
                   )}
                 </div>
               </>
@@ -77,14 +77,14 @@ export function RegulatoryEvents({ events }: RegulatoryEventsProps) {
                 href={event.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block p-3 bg-zinc-900/50 rounded-lg hover:bg-zinc-800/50 transition-colors group"
+                className="block p-3 bg-card/50 dark:bg-muted/50 rounded-lg hover:bg-accent/50 transition-colors group"
               >
                 {content}
               </a>
             ) : (
               <div
                 key={i}
-                className="block p-3 bg-zinc-900/50 rounded-lg group"
+                className="block p-3 bg-card/50 dark:bg-muted/50 rounded-lg group"
               >
                 {content}
               </div>

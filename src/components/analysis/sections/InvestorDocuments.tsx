@@ -59,13 +59,13 @@ export function InvestorDocuments({ documents, companyInfo }: InvestorDocumentsP
     return (
       <SectionCard title="Investor Documents" icon={Briefcase} color="amber">
         <div className="py-4 text-center">
-          <div className="w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center mx-auto mb-3">
-            <Lock className="w-5 h-5 text-zinc-500" />
+          <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mx-auto mb-3">
+            <Lock className="w-5 h-5 text-muted-foreground" />
           </div>
-          <h4 className="text-sm font-medium text-white mb-1">{privateMsg?.title}</h4>
-          <p className="text-zinc-500 text-xs">{privateMsg?.message}</p>
+          <h4 className="text-sm font-medium text-foreground mb-1">{privateMsg?.title}</h4>
+          <p className="text-muted-foreground text-xs">{privateMsg?.message}</p>
           {privateMsg?.hint && (
-            <p className="text-amber-400/70 text-xs mt-2 flex items-center justify-center gap-1">
+            <p className="text-amber-600/70 dark:text-amber-400/70 text-xs mt-2 flex items-center justify-center gap-1">
               <FileText className="w-3 h-3" />
               {privateMsg.hint}
             </p>
@@ -80,17 +80,17 @@ export function InvestorDocuments({ documents, companyInfo }: InvestorDocumentsP
       <div className="space-y-1">
         {/* Show context for formerly public or pre-IPO companies */}
         {isPrivate && hasValidDocs && (
-          <div className="mb-3 pb-3 border-b border-zinc-800">
-            <p className="text-xs text-amber-400/70">
-              {companyInfo?.publicStatus === 'went_private' && '📁 Historical filings from when the company was public:'}
-              {companyInfo?.publicStatus === 'pre_ipo' && '📋 Available filings for this pre-IPO company:'}
+          <div className="mb-3 pb-3 border-b border-border">
+            <p className="text-xs text-amber-600/70 dark:text-amber-400/70">
+              {companyInfo?.publicStatus === 'went_private' && 'Historical filings from when the company was public:'}
+              {companyInfo?.publicStatus === 'pre_ipo' && 'Available filings for this pre-IPO company:'}
             </p>
           </div>
         )}
         {documents.map((doc, i) => {
           const hasValidUrl = isValidHttpUrl(doc.url);
           return (
-            <div key={i} className="py-2 border-b border-zinc-800/50 last:border-0">
+            <div key={i} className="py-2 border-b border-border/50 last:border-0">
               {hasValidUrl ? (
                 <a
                   href={doc.url}
@@ -99,27 +99,27 @@ export function InvestorDocuments({ documents, companyInfo }: InvestorDocumentsP
                   className="block group cursor-pointer"
                 >
                   <div className="flex items-start gap-2">
-                    <LinkIcon className="w-4 h-4 text-amber-400 mt-0.5 flex-shrink-0" />
+                    <LinkIcon className="w-4 h-4 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1">
-                        <span className="text-amber-400 group-hover:text-amber-300 group-hover:underline transition-colors font-medium text-sm">
+                        <span className="text-amber-600 dark:text-amber-400 group-hover:text-amber-500 dark:group-hover:text-amber-300 group-hover:underline transition-colors font-medium text-sm">
                           {doc.title}
                         </span>
-                        <ExternalLink className="w-3 h-3 text-amber-400 flex-shrink-0" />
+                        <ExternalLink className="w-3 h-3 text-amber-600 dark:text-amber-400 flex-shrink-0" />
                       </div>
                       {doc.summary && (
-                        <p className="text-zinc-500 text-xs mt-1 line-clamp-2">{doc.summary}</p>
+                        <p className="text-muted-foreground text-xs mt-1 line-clamp-2">{doc.summary}</p>
                       )}
                     </div>
                   </div>
                 </a>
               ) : (
                 <div className="flex items-start gap-2">
-                  <LinkIcon className="w-4 h-4 text-zinc-500 mt-0.5 flex-shrink-0" />
+                  <LinkIcon className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
                   <div className="flex-1 min-w-0">
-                    <span className="text-zinc-300 font-medium text-sm">{doc.title}</span>
+                    <span className="text-foreground font-medium text-sm">{doc.title}</span>
                     {doc.summary && (
-                      <p className="text-zinc-500 text-xs mt-1 line-clamp-2">{doc.summary}</p>
+                      <p className="text-muted-foreground text-xs mt-1 line-clamp-2">{doc.summary}</p>
                     )}
                   </div>
                 </div>
@@ -128,7 +128,7 @@ export function InvestorDocuments({ documents, companyInfo }: InvestorDocumentsP
           );
         })}
         {documents.length === 0 && !isPrivate && (
-          <p className="text-zinc-500 text-sm">No documents found</p>
+          <p className="text-muted-foreground text-sm">No documents found</p>
         )}
       </div>
     </SectionCard>

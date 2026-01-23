@@ -29,26 +29,26 @@ export function LeadershipChanges({ changes }: LeadershipChangesProps) {
             changes.filter(c => !isArticleTitle(c.name)).slice(0, 8).map((change, i) => (
               <div
                 key={i}
-                className="p-3 bg-zinc-900/50 rounded-lg"
+                className="p-3 bg-card/50 dark:bg-muted/50 rounded-lg"
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1 min-w-0">
-                    <h4 className="text-zinc-100 font-semibold text-sm">
+                    <h4 className="text-foreground font-semibold text-sm">
                       {change.name}
                     </h4>
                     <div className="flex items-center gap-2 mt-1">
-                      <ArrowRight className="w-3 h-3 text-emerald-400 flex-shrink-0" />
-                      <p className="text-emerald-400 text-sm font-medium">
+                      <ArrowRight className="w-3 h-3 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
+                      <p className="text-emerald-600 dark:text-emerald-400 text-sm font-medium">
                         {change.role}
                       </p>
                     </div>
                     {change.previousRole && (
-                      <p className="text-zinc-500 text-xs mt-1">
+                      <p className="text-muted-foreground text-xs mt-1">
                         Previously: {change.previousRole}
                       </p>
                     )}
                     {change.date && (
-                      <p className="text-zinc-500 text-xs mt-1">
+                      <p className="text-muted-foreground text-xs mt-1">
                         {change.date}
                       </p>
                     )}
@@ -59,7 +59,7 @@ export function LeadershipChanges({ changes }: LeadershipChangesProps) {
                     href={change.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 text-cyan-400 hover:text-cyan-300 text-xs mt-2 transition-colors"
+                    className="inline-flex items-center gap-1.5 text-cyan-600 dark:text-cyan-400 hover:text-cyan-500 dark:hover:text-cyan-300 text-xs mt-2 transition-colors"
                   >
                     <ExternalLink className="w-3 h-3" />
                     {change.source || 'View announcement'}
@@ -75,21 +75,21 @@ export function LeadershipChanges({ changes }: LeadershipChangesProps) {
                 href={change.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block p-3 bg-zinc-900/50 rounded-lg hover:bg-zinc-800/50 transition-colors group"
+                className="block p-3 bg-card/50 dark:bg-muted/50 rounded-lg hover:bg-accent/50 transition-colors group"
               >
                 <div className="flex items-start justify-between gap-2">
-                  <h4 className="text-zinc-200 text-sm font-medium line-clamp-2 group-hover:text-white transition-colors">
+                  <h4 className="text-foreground text-sm font-medium line-clamp-2 group-hover:text-foreground/80 transition-colors">
                     {change.name}
                   </h4>
-                  <ExternalLink className="w-4 h-4 text-zinc-500 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <ExternalLink className="w-4 h-4 text-muted-foreground flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
                 {change.role && (
-                  <p className="text-zinc-500 text-xs mt-2 line-clamp-2">
+                  <p className="text-muted-foreground text-xs mt-2 line-clamp-2">
                     {change.role}
                   </p>
                 )}
                 {change.source && (
-                  <p className="text-cyan-400/70 text-xs mt-2">
+                  <p className="text-cyan-600/70 dark:text-cyan-400/70 text-xs mt-2">
                     {change.source}
                   </p>
                 )}
@@ -97,7 +97,7 @@ export function LeadershipChanges({ changes }: LeadershipChangesProps) {
             ))
           )
         ) : (
-          <p className="text-zinc-500 text-sm">No recent leadership changes found</p>
+          <p className="text-muted-foreground text-sm">No recent leadership changes found</p>
         )}
       </div>
     </SectionCard>
