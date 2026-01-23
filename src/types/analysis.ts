@@ -7,7 +7,6 @@ export interface AnalysisResult {
   growthInitiatives: string[];
   techNews: LinkItem[];
   caseStudies: LinkItem[];
-  competitors: CompetitorItem[];
   competitorMentions: CompetitorMentionItem[];
   leadershipChanges: LeadershipChangeItem[];
   maActivity: MAItem[];
@@ -28,12 +27,6 @@ export interface LinkItem {
   title: string;
   url: string;
   summary?: string;
-}
-
-export interface CompetitorItem {
-  name: string;
-  marketPosition: string;
-  differentiator: string;
 }
 
 export interface MAItem {

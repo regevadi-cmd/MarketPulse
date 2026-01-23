@@ -80,14 +80,10 @@ Title | URL | Brief summary
 [/TECH_NEWS]
 
 [CASE_STUDIES]
-Find 5 external case studies where ${companyName} is a CUSTOMER or PARTNER of tech vendors (AWS, Microsoft, Google, Salesforce, etc.). NOT self-hosted case studies. Format:
-Vendor: Title | URL | Summary
+Find 5 technology case studies from OTHER technology companies (AWS, Microsoft, Google, Salesforce, ServiceNow, Snowflake, etc.) where ${companyName} is featured as a customer or partner.
+IMPORTANT: Only include case studies HOSTED BY other companies, NOT case studies hosted on ${companyName}'s own website.
+Format: Vendor: Title | URL | Summary
 [/CASE_STUDIES]
-
-[COMPETITORS]
-List 5 main competitors. Format:
-Competitor Name | Market Position | Key Differentiator
-[/COMPETITORS]
 
 [COMPETITOR_MENTIONS]
 Search for any mentions of "${companyName}" on the websites, press releases, case studies, or partner pages of these specific companies: Smarsh, Global Relay, NICE, Verint, Arctera, Veritas, Proofpoint, Shield, Behavox, Digital Reasoning, Mimecast, ZL Technologies.

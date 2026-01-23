@@ -10,7 +10,6 @@ import { GrowthInitiatives } from './sections/GrowthInitiatives';
 import { InvestorDocuments } from './sections/InvestorDocuments';
 import { TechNews } from './sections/TechNews';
 import { CaseStudies } from './sections/CaseStudies';
-import { CompetitiveLandscape } from './sections/CompetitiveLandscape';
 import { CompetitorMentions } from './sections/CompetitorMentions';
 import { LeadershipChanges } from './sections/LeadershipChanges';
 import { MAActivity } from './sections/MAActivity';
@@ -210,14 +209,9 @@ export function AnalysisDashboard({
         {/* Row 4: News & Intelligence */}
         <TechNews news={data.techNews} />
         <LeadershipChanges changes={data.leadershipChanges || []} />
+        <CompetitorMentions mentions={data.competitorMentions || []} />
 
-        {/* Row 5: Competitive Intelligence - Even split */}
-        <div className="lg:col-span-2 xl:col-span-3 grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <CompetitiveLandscape competitors={data.competitors} />
-          <CompetitorMentions mentions={data.competitorMentions || []} />
-        </div>
-
-        {/* Row 6: Documents & Resources */}
+        {/* Row 5: Documents & Resources */}
         <InvestorDocuments documents={data.investorDocs} companyInfo={companyInfo} />
         <CaseStudies studies={data.caseStudies} />
       </div>

@@ -1,4 +1,4 @@
-import { AnalysisResult, QuickFacts, LinkItem, CompetitorItem, MAItem, CompetitorMentionItem, LeadershipChangeItem } from '@/types/analysis';
+import { AnalysisResult, QuickFacts, LinkItem, MAItem, CompetitorMentionItem, LeadershipChangeItem } from '@/types/analysis';
 
 function parseTagContent(text: string, tag: string): string {
   const regex = new RegExp(`\\[${tag}\\]([\\s\\S]*?)\\[\\/${tag}\\]`, 'i');
@@ -83,22 +83,6 @@ function parseQuickFacts(content: string): QuickFacts {
     }
   });
   return facts;
-}
-
-function parseCompetitors(content: string): CompetitorItem[] {
-  if (!content) return [];
-  return content
-    .split('\n')
-    .filter((line) => line.trim())
-    .map((line) => {
-      const parts = line.split('|').map((p) => p.trim());
-      return {
-        name: parts[0] || '',
-        marketPosition: parts[1] || '',
-        differentiator: parts[2] || ''
-      };
-    })
-    .filter((c) => c.name);
 }
 
 function parseMAActivity(content: string): MAItem[] {
@@ -217,7 +201,6 @@ export function parseTaggedResponse(text: string): AnalysisResult {
     growthInitiatives: parseNumberedList(parseTagContent(text, 'GROWTH_INITIATIVES')),
     techNews: parseListItems(parseTagContent(text, 'TECH_NEWS')),
     caseStudies: parseListItems(parseTagContent(text, 'CASE_STUDIES')),
-    competitors: parseCompetitors(parseTagContent(text, 'COMPETITORS')),
     competitorMentions: parseCompetitorMentions(parseTagContent(text, 'COMPETITOR_MENTIONS')),
     leadershipChanges: parseLeadershipChanges(parseTagContent(text, 'LEADERSHIP_CHANGES')),
     maActivity: parseMAActivity(parseTagContent(text, 'MA_ACTIVITY')),
