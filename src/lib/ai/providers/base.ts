@@ -86,11 +86,14 @@ Format: Vendor: Title | URL | Summary
 [/CASE_STUDIES]
 
 [COMPETITOR_MENTIONS]
-Search for any mentions of "${companyName}" on the websites, press releases, case studies, or partner pages of these specific companies: Smarsh, Global Relay, NICE, Verint, Arctera, Veritas, Proofpoint, Shield, Behavox, Digital Reasoning, Mimecast, ZL Technologies.
-Look for: customer logos, case studies, partner announcements, press releases, or comparison mentions.
-IMPORTANT: Only include REAL URLs that actually exist on the competitor's website (e.g., https://www.smarsh.com/..., https://www.globalrelay.com/..., etc.). Do NOT use placeholder URLs.
-Format each finding as:
-Competitor Name | Mention Type (customer/partner/comparison/case_study/press_release/other) | Title | Full External URL | Date (YYYY-MM or YYYY if exact date unknown) | Brief summary
+Search for TECHNOLOGY-RELATED mentions of "${companyName}" involving these compliance/archiving competitors: Theta Lake, Smarsh, Global Relay, NICE, Verint, Arctera, Veritas, Proofpoint, Shield, Behavox, Digital Reasoning, Mimecast, ZL Technologies.
+
+INCLUDE: Technology partnerships, product integrations, customer case studies, competitive comparisons, technology announcements, product launches, platform integrations.
+
+EXCLUDE: Financial advisory roles, board positions, conference co-authorship, investment banking, generic industry reports, regulatory filings where company is just listed.
+
+IMPORTANT: Only include REAL URLs from competitor websites. Provide a 1-2 sentence summary of the technology relevance.
+Format: Competitor Name | Mention Type (customer/partner/comparison/case_study/press_release/integration) | Title | Full URL | Date (YYYY-MM) | Technology summary (what product/integration/use case)
 [/COMPETITOR_MENTIONS]
 
 [LEADERSHIP_CHANGES]

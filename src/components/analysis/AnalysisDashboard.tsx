@@ -275,11 +275,13 @@ export function AnalysisDashboard({
         {/* Row 4: News & Intelligence */}
         <TechNews news={data.techNews} />
         <LeadershipChanges changes={data.leadershipChanges || []} />
-        <CompetitorMentions mentions={data.competitorMentions || []} />
-
-        {/* Row 5: Documents & Resources */}
-        <InvestorDocuments documents={data.investorDocs} companyInfo={companyInfo} />
         <CaseStudies studies={data.caseStudies} />
+
+        {/* Row 5: Competitor Mentions & Investor Docs - 50/50 Split */}
+        <div className="lg:col-span-2 xl:col-span-3 grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <CompetitorMentions mentions={data.competitorMentions || []} />
+          <InvestorDocuments documents={data.investorDocs} companyInfo={companyInfo} />
+        </div>
       </div>
 
       {/* Grounding Sources */}

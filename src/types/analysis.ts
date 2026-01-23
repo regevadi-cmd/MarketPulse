@@ -39,7 +39,7 @@ export interface MAItem {
 
 export interface CompetitorMentionItem {
   competitorName: string;
-  mentionType: 'customer' | 'partner' | 'comparison' | 'case_study' | 'press_release' | 'other';
+  mentionType: 'customer' | 'partner' | 'comparison' | 'case_study' | 'press_release' | 'integration' | 'other';
   title: string;
   url: string;
   date?: string;

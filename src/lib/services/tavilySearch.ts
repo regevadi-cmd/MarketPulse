@@ -143,7 +143,7 @@ export interface CompetitorMention {
   title: string;
   url: string;
   summary: string;
-  mentionType: 'customer' | 'partner' | 'case_study' | 'press_release' | 'other';
+  mentionType: 'customer' | 'partner' | 'case_study' | 'press_release' | 'integration' | 'other';
 }
 
 function inferMentionType(url: string, content: string): CompetitorMention['mentionType'] {
@@ -152,6 +152,9 @@ function inferMentionType(url: string, content: string): CompetitorMention['ment
 
   if (urlLower.includes('case-study') || urlLower.includes('casestudy') || urlLower.includes('customer-story') || contentLower.includes('case study')) {
     return 'case_study';
+  }
+  if (urlLower.includes('integration') || urlLower.includes('connector') || contentLower.includes('integration') || contentLower.includes('integrates')) {
+    return 'integration' as CompetitorMention['mentionType'];
   }
   if (urlLower.includes('customer') || urlLower.includes('client') || contentLower.includes('customer')) {
     return 'customer';
@@ -165,6 +168,60 @@ function inferMentionType(url: string, content: string): CompetitorMention['ment
   return 'other';
 }
 
+// Check if content is about technology activity (not finance/advisory)
+function isTechnologyRelated(content: string, title: string): boolean {
+  const text = (content + ' ' + title).toLowerCase();
+
+  // Technology-related keywords
+  const techKeywords = [
+    'integration', 'platform', 'solution', 'software', 'deploy', 'implement',
+    'compliance', 'archiving', 'capture', 'surveillance', 'monitor', 'analyze',
+    'ai', 'machine learning', 'automation', 'api', 'connector', 'plugin',
+    'customer', 'use case', 'case study', 'product', 'feature', 'launch',
+    'partnership', 'technology partner', 'tech partner', 'certified'
+  ];
+
+  // Finance/advisory keywords to exclude
+  const financeKeywords = [
+    'advisory board', 'board member', 'board of directors', 'co-author',
+    'investment bank', 'financial advisor', 'underwriter', 'ipo',
+    'sec filing', 'regulatory filing', 'proxy statement', 'securities',
+    'conference speaker', 'panel discussion', 'webinar speaker',
+    'industry report co-author', 'white paper co-author'
+  ];
+
+  // Check if it has tech keywords and doesn't have finance keywords
+  const hasTechKeyword = techKeywords.some(kw => text.includes(kw));
+  const hasFinanceKeyword = financeKeywords.some(kw => text.includes(kw));
+
+  return hasTechKeyword && !hasFinanceKeyword;
+}
+
+// Create a concise technology-focused summary
+function createTechSummary(content: string, companyName: string): string {
+  const contentLower = content.toLowerCase();
+  const companyLower = companyName.toLowerCase();
+
+  // Try to extract the most relevant sentence mentioning the company
+  const sentences = content.split(/[.!?]+/).filter(s => s.trim().length > 20);
+  const relevantSentence = sentences.find(s =>
+    s.toLowerCase().includes(companyLower) &&
+    (s.toLowerCase().includes('partner') ||
+     s.toLowerCase().includes('customer') ||
+     s.toLowerCase().includes('integration') ||
+     s.toLowerCase().includes('deploy') ||
+     s.toLowerCase().includes('use') ||
+     s.toLowerCase().includes('solution'))
+  );
+
+  if (relevantSentence) {
+    return relevantSentence.trim().substring(0, 150) + (relevantSentence.length > 150 ? '...' : '');
+  }
+
+  // Fallback to first 150 chars
+  return content.substring(0, 150).trim() + (content.length > 150 ? '...' : '');
+}
+
 export async function tavilySearchCompetitorMentions(
   companyName: string,
   apiKey: string
@@ -172,17 +229,17 @@ export async function tavilySearchCompetitorMentions(
   const mentions: CompetitorMention[] = [];
 
   // Search for the company across all competitor domains in parallel
-  // Use specific search terms to find relevant announcements, not generic pages
+  // Focus on technology-related content: integrations, partnerships, customer deployments
   const searchPromises = COMPETITOR_DOMAINS.map(async (domain) => {
     try {
-      // Search for specific types of content: customer wins, partnerships, case studies, press releases
+      // Search for technology-focused content
       const response = await tavilySearch(
-        `"${companyName}" site:${domain} (customer OR partner OR case study OR announcement OR press release OR deploys OR selects OR chooses)`,
+        `"${companyName}" site:${domain} (integration OR customer OR partner OR deploys OR platform OR solution OR compliance OR archiving)`,
         apiKey,
         { maxResults: 3, includeAnswer: false, searchDepth: 'advanced' }
       );
 
-      // Filter results to only include pages that actually mention the company name in title or content
+      // Filter results to only include technology-related content
       const relevantResults = response.results.filter(result => {
         const titleLower = result.title.toLowerCase();
         const contentLower = result.content.toLowerCase();
@@ -193,16 +250,19 @@ export async function tavilySearchCompetitorMentions(
           contentLower.includes(companyLower);
 
         // Exclude generic pages like careers, about, contact, pricing
-        const isGenericPage = result.url.toLowerCase().match(/(career|job|about-us|contact|pricing|demo|login|signup|privacy|terms)/);
+        const isGenericPage = result.url.toLowerCase().match(/(career|job|about-us|contact|pricing|demo|login|signup|privacy|terms|webinar|event|conference)/);
 
-        return mentionsCompany && !isGenericPage;
+        // Must be technology-related, not finance/advisory
+        const isTechContent = isTechnologyRelated(result.content, result.title);
+
+        return mentionsCompany && !isGenericPage && isTechContent;
       });
 
       return relevantResults.map(result => ({
         competitorName: COMPETITOR_NAMES[domain] || domain,
         title: result.title,
         url: result.url,
-        summary: result.content.substring(0, 200),
+        summary: createTechSummary(result.content, companyName),
         mentionType: inferMentionType(result.url, result.content)
       }));
     } catch (err) {

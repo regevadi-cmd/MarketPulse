@@ -105,7 +105,7 @@ function parseMAActivity(content: string): MAItem[] {
 
 function parseCompetitorMentions(content: string): CompetitorMentionItem[] {
   if (!content) return [];
-  const validMentionTypes = ['customer', 'partner', 'comparison', 'case_study', 'press_release', 'other'];
+  const validMentionTypes = ['customer', 'partner', 'comparison', 'case_study', 'press_release', 'integration', 'other'];
 
   return content
     .split('\n')

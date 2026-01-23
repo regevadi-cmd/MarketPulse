@@ -1,6 +1,6 @@
 'use client';
 
-import { Search, ExternalLink, Building2, Handshake, Scale, FileText, Newspaper, MoreHorizontal, Calendar } from 'lucide-react';
+import { Search, ExternalLink, Building2, Handshake, Scale, FileText, Newspaper, MoreHorizontal, Calendar, Plug } from 'lucide-react';
 import { SectionCard } from '../SectionCard';
 import { CompetitorMentionItem } from '@/types/analysis';
 
@@ -19,6 +19,7 @@ const mentionTypeIcons: Record<string, typeof Building2> = {
   comparison: Scale,
   case_study: FileText,
   press_release: Newspaper,
+  integration: Plug,
   other: MoreHorizontal,
 };
 
@@ -28,6 +29,7 @@ const mentionTypeLabels: Record<string, string> = {
   comparison: 'Comparison',
   case_study: 'Case Study',
   press_release: 'Press Release',
+  integration: 'Integration',
   other: 'Mention',
 };
 
@@ -37,6 +39,7 @@ const mentionTypeColors: Record<string, string> = {
   comparison: 'text-amber-400 bg-amber-500/10',
   case_study: 'text-purple-400 bg-purple-500/10',
   press_release: 'text-cyan-400 bg-cyan-500/10',
+  integration: 'text-violet-400 bg-violet-500/10',
   other: 'text-zinc-400 bg-zinc-500/10',
 };
 
@@ -93,19 +96,17 @@ export function CompetitorMentions({ mentions }: CompetitorMentionsProps) {
                             </span>
                             <ExternalLink className="w-3 h-3 text-zinc-500 flex-shrink-0 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity" />
                           </div>
-                          <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-1">
-                            {mention.date && (
-                              <span className="flex items-center gap-1 text-zinc-500 text-xs">
-                                <Calendar className="w-3 h-3" />
-                                {mention.date}
-                              </span>
-                            )}
-                            {mention.summary && (
-                              <p className="text-zinc-500 text-xs line-clamp-1 flex-1 hidden sm:block">
-                                {mention.summary}
-                              </p>
-                            )}
-                          </div>
+                          {mention.summary && (
+                            <p className="text-zinc-400 text-xs mt-1 line-clamp-2">
+                              {mention.summary}
+                            </p>
+                          )}
+                          {mention.date && (
+                            <span className="flex items-center gap-1 text-zinc-500 text-xs mt-1">
+                              <Calendar className="w-3 h-3" />
+                              {mention.date}
+                            </span>
+                          )}
                         </div>
                       </a>
                     );
