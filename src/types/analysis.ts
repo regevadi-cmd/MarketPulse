@@ -21,13 +21,20 @@ export interface RegulatoryBodyMention {
   url?: string; // Source URL
 }
 
+export interface RegulatoryEventSource {
+  url: string;
+  title?: string; // Source title/headline
+  regulatoryBody?: string; // May differ between sources
+}
+
 export interface RegulatoryEventItem {
   date: string; // Year or specific date
-  regulatoryBody: string; // Which regulator took action
+  regulatoryBody: string; // Primary regulator
   eventType: 'fine' | 'penalty' | 'settlement' | 'enforcement' | 'investigation' | 'consent' | 'order' | 'action' | 'other';
   amount?: string; // Fine/penalty amount if applicable
   description: string; // Brief summary of the event
-  url: string; // Link to news article or official source
+  url: string; // Primary link to news article or official source
+  sources?: RegulatoryEventSource[]; // Additional sources for the same event
 }
 
 export interface QuickFacts {

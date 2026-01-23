@@ -1,6 +1,6 @@
 'use client';
 
-import { AlertTriangle, ExternalLink, DollarSign, Calendar, Building2 } from 'lucide-react';
+import { AlertTriangle, ExternalLink, DollarSign, Calendar, Building2, Newspaper } from 'lucide-react';
 import { SectionCard } from '../SectionCard';
 import { RegulatoryEventItem } from '@/types/analysis';
 
@@ -68,6 +68,36 @@ export function RegulatoryEvents({ events }: RegulatoryEventsProps) {
                     <ExternalLink className="w-4 h-4 text-muted-foreground flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity mt-0.5" />
                   )}
                 </div>
+
+                {/* Additional sources for deduplicated events */}
+                {event.sources && event.sources.length > 0 && (
+                  <div className="mt-2 pt-2 border-t border-border/50">
+                    <div className="flex items-center gap-1.5 mb-1.5">
+                      <Newspaper className="w-3 h-3 text-muted-foreground" />
+                      <span className="text-xs text-muted-foreground">
+                        {event.sources.length + 1} sources reporting this event
+                      </span>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {event.sources.map((source, j) => (
+                        <a
+                          key={j}
+                          href={source.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          className="inline-flex items-center gap-1 px-2 py-1 bg-muted/50 hover:bg-muted rounded text-xs text-muted-foreground hover:text-foreground transition-colors"
+                          title={source.title || source.url}
+                        >
+                          <ExternalLink className="w-3 h-3" />
+                          <span className="truncate max-w-[120px]">
+                            {source.regulatoryBody || new URL(source.url).hostname.replace('www.', '')}
+                          </span>
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </>
             );
 

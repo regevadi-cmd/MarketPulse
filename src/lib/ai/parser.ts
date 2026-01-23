@@ -1,4 +1,4 @@
-import { AnalysisResult, QuickFacts, LinkItem, MAItem, CompetitorMentionItem, LeadershipChangeItem, RegulatoryBodyMention, RegulatoryEventItem } from '@/types/analysis';
+import { AnalysisResult, QuickFacts, LinkItem, MAItem, CompetitorMentionItem, LeadershipChangeItem, RegulatoryBodyMention, RegulatoryEventItem, RegulatoryEventSource } from '@/types/analysis';
 
 function parseTagContent(text: string, tag: string): string {
   const regex = new RegExp(`\\[${tag}\\]([\\s\\S]*?)\\[\\/${tag}\\]`, 'i');
@@ -235,6 +235,140 @@ function parseRegulatoryEvents(content: string): RegulatoryEventItem[] {
     })
     // Only require date, regulatory body, and description - URL is optional
     .filter((e) => e.date && e.regulatoryBody && e.description);
+}
+
+/**
+ * Normalize an amount string to a numeric value for comparison
+ * e.g., "$151M" -> 151000000, "$151 million" -> 151000000
+ */
+function normalizeAmount(amount: string | undefined): number | null {
+  if (!amount) return null;
+
+  const cleaned = amount.toLowerCase().replace(/[,$\s]/g, '');
+
+  // Extract number and multiplier
+  const match = cleaned.match(/([\d.]+)\s*(billion|b|million|m|thousand|k)?/i);
+  if (!match) return null;
+
+  let value = parseFloat(match[1]);
+  const multiplier = match[2]?.toLowerCase();
+
+  if (multiplier === 'billion' || multiplier === 'b') {
+    value *= 1_000_000_000;
+  } else if (multiplier === 'million' || multiplier === 'm') {
+    value *= 1_000_000;
+  } else if (multiplier === 'thousand' || multiplier === 'k') {
+    value *= 1_000;
+  }
+
+  return value;
+}
+
+/**
+ * Extract year from a date string
+ */
+function extractYear(date: string): number | null {
+  const match = date.match(/\b(19|20)\d{2}\b/);
+  return match ? parseInt(match[0]) : null;
+}
+
+/**
+ * Check if two amounts are similar (within 5% tolerance)
+ */
+function amountsAreSimilar(a1: number | null, a2: number | null): boolean {
+  if (a1 === null || a2 === null) return false;
+  const tolerance = 0.05; // 5% tolerance
+  const diff = Math.abs(a1 - a2);
+  const avg = (a1 + a2) / 2;
+  return diff / avg < tolerance;
+}
+
+/**
+ * Deduplicate regulatory events by grouping similar events together
+ * Events are considered duplicates if they have similar amounts and dates
+ */
+export function deduplicateRegulatoryEvents(events: RegulatoryEventItem[]): RegulatoryEventItem[] {
+  if (events.length <= 1) return events;
+
+  const grouped: RegulatoryEventItem[] = [];
+  const used = new Set<number>();
+
+  for (let i = 0; i < events.length; i++) {
+    if (used.has(i)) continue;
+
+    const event = events[i];
+    const eventAmount = normalizeAmount(event.amount);
+    const eventYear = extractYear(event.date);
+
+    // Find all similar events
+    const similarIndices: number[] = [i];
+    const sources: RegulatoryEventSource[] = [];
+
+    // Add first event's source
+    if (event.url) {
+      sources.push({
+        url: event.url,
+        title: event.description.slice(0, 80),
+        regulatoryBody: event.regulatoryBody
+      });
+    }
+
+    for (let j = i + 1; j < events.length; j++) {
+      if (used.has(j)) continue;
+
+      const otherEvent = events[j];
+      const otherAmount = normalizeAmount(otherEvent.amount);
+      const otherYear = extractYear(otherEvent.date);
+
+      // Check if amounts are similar and years match (or are within 1 year)
+      const amountMatch = eventAmount && otherAmount && amountsAreSimilar(eventAmount, otherAmount);
+      const yearMatch = eventYear && otherYear && Math.abs(eventYear - otherYear) <= 1;
+
+      // Also check for very similar descriptions (same enforcement action)
+      const descOverlap = event.description.toLowerCase().includes(otherEvent.regulatoryBody.toLowerCase()) ||
+                         otherEvent.description.toLowerCase().includes(event.regulatoryBody.toLowerCase());
+
+      if (amountMatch && (yearMatch || descOverlap)) {
+        similarIndices.push(j);
+        used.add(j);
+
+        if (otherEvent.url) {
+          sources.push({
+            url: otherEvent.url,
+            title: otherEvent.description.slice(0, 80),
+            regulatoryBody: otherEvent.regulatoryBody
+          });
+        }
+      }
+    }
+
+    used.add(i);
+
+    // Create merged event
+    if (sources.length > 1) {
+      // Multiple sources - pick the best primary event (prefer official sources)
+      const officialRegulators = ['SEC', 'DOJ', 'CFTC', 'OCC', 'FINRA', 'FCA'];
+      const primaryIndex = similarIndices.find(idx =>
+        officialRegulators.some(reg => events[idx].regulatoryBody.toUpperCase().includes(reg))
+      ) || similarIndices[0];
+
+      const primaryEvent = events[primaryIndex];
+
+      grouped.push({
+        ...primaryEvent,
+        sources: sources.filter(s => s.url !== primaryEvent.url) // Don't duplicate primary URL
+      });
+    } else {
+      grouped.push(event);
+    }
+  }
+
+  // Sort by date (most recent first)
+  return grouped.sort((a, b) => {
+    const yearA = extractYear(a.date) || 0;
+    const yearB = extractYear(b.date) || 0;
+    return yearB - yearA;
+  });
 }
 
 export function parseTaggedResponse(text: string): AnalysisResult {

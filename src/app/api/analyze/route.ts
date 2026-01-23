@@ -6,6 +6,7 @@ import { searchCompanyNews, searchCompanyCaseStudies, searchCompanyInfo, searchI
 import { tavilySearchCompanyNews, tavilySearchCaseStudies, tavilySearchCompanyInfo, tavilySearchInvestorDocs, tavilySearchCompetitorMentions, tavilySearchLeadershipChanges, tavilySearchRegulatoryEvents, CompetitorMention, RegulatoryEvent } from '@/lib/services/tavilySearch';
 import { createClient } from '@/lib/supabase/server';
 import { parseLeadershipArticles } from '@/lib/ai/parseLeadershipNews';
+import { deduplicateRegulatoryEvents } from '@/lib/ai/parser';
 
 // Cache expiry: 24 hours (in minutes)
 const CACHE_EXPIRY_MINUTES = 24 * 60;
@@ -317,7 +318,7 @@ export async function POST(request: NextRequest) {
 
       // Replace regulatory events with real web search results (Tavily only)
       if (webSearchData.regulatoryEvents && webSearchData.regulatoryEvents.length > 0) {
-        analysis.regulatoryEvents = webSearchData.regulatoryEvents.map((event: RegulatoryEvent) => ({
+        const rawEvents = webSearchData.regulatoryEvents.map((event: RegulatoryEvent) => ({
           date: event.date,
           regulatoryBody: event.regulatoryBody,
           eventType: event.eventType,
@@ -325,7 +326,9 @@ export async function POST(request: NextRequest) {
           description: event.description,
           url: event.url
         }));
-        console.log(`Found ${webSearchData.regulatoryEvents.length} regulatory events for ${companyName}`);
+        // Deduplicate events that refer to the same enforcement action
+        analysis.regulatoryEvents = deduplicateRegulatoryEvents(rawEvents);
+        console.log(`Found ${webSearchData.regulatoryEvents.length} regulatory events for ${companyName}, deduplicated to ${analysis.regulatoryEvents.length}`);
       }
 
       // Add web search sources to sources list
