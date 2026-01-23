@@ -211,27 +211,30 @@ function parseRegulatoryLandscape(content: string): RegulatoryBodyMention[] {
 
 function parseRegulatoryEvents(content: string): RegulatoryEventItem[] {
   if (!content) return [];
-  const validEventTypes = ['fine', 'penalty', 'settlement', 'enforcement', 'investigation', 'other'];
+  const validEventTypes = ['fine', 'penalty', 'settlement', 'enforcement', 'investigation', 'consent', 'order', 'action', 'other'];
 
   return content
     .split('\n')
     .filter((line) => line.trim())
     .map((line) => {
-      const parts = line.split('|').map((p) => p.trim());
+      // Remove leading numbers/bullets
+      const cleanLine = line.replace(/^[\d\-\*\.]+\s*/, '').trim();
+      const parts = cleanLine.split('|').map((p) => p.trim());
       // Format: Date | Regulatory Body | Event Type | Amount | Description | URL
       const eventType = (parts[2] || 'other').toLowerCase().replace(/\s+/g, '_');
-      const url = extractUrl(parts[5]) || '';
+      const url = extractUrl(parts[5]) || extractUrl(parts[4]) || '';
 
       return {
         date: parts[0] || '',
         regulatoryBody: parts[1] || '',
         eventType: (validEventTypes.includes(eventType) ? eventType : 'other') as RegulatoryEventItem['eventType'],
-        amount: parts[3] && parts[3] !== 'N/A' && parts[3] !== '-' ? parts[3] : undefined,
+        amount: parts[3] && parts[3] !== 'N/A' && parts[3] !== '-' && parts[3] !== 'n/a' ? parts[3] : undefined,
         description: parts[4] || '',
         url: url
       };
     })
-    .filter((e) => e.date && e.regulatoryBody && e.description && e.url);
+    // Only require date, regulatory body, and description - URL is optional
+    .filter((e) => e.date && e.regulatoryBody && e.description);
 }
 
 export function parseTaggedResponse(text: string): AnalysisResult {

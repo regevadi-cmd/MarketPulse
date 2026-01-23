@@ -113,10 +113,18 @@ Format: Regulatory Body | Brief context of the relationship (e.g., "Primary secu
 [/REGULATORY_LANDSCAPE]
 
 [REGULATORY_EVENTS]
-Search for enforcement actions, fines, penalties, settlements, or investigations involving "${companyName}" from the past 5 years (2020-present).
-Include actions from any regulatory body (SEC, FINRA, DOJ, FCA, CFTC, state attorneys general, etc.).
+Search SEC.gov, FINRA.org, DOJ.gov, FCA.org.uk, and major financial news sources (Reuters, Bloomberg, WSJ) for enforcement actions, fines, penalties, settlements, consent orders, or investigations involving "${companyName}" from the past 5 years (2020-present).
+
+Look specifically for:
+- SEC enforcement actions and litigation releases
+- FINRA disciplinary actions and fines
+- DOJ settlements and criminal charges
+- State attorney general actions
+- International regulatory penalties (FCA, ESMA, etc.)
+
+For major financial institutions, there are typically multiple enforcement actions - search thoroughly.
 IMPORTANT: Only include REAL events with verifiable sources. Do not fabricate events.
-Format: Date (YYYY-MM or YYYY) | Regulatory Body | Event Type (fine/penalty/settlement/enforcement/investigation) | Amount (if applicable) | Brief description | News Article URL
+Format: Date (YYYY-MM or YYYY) | Regulatory Body | Event Type (fine/penalty/settlement/enforcement/investigation/consent/order) | Amount (e.g., $15 million) | Brief description of violation | News or official source URL
 [/REGULATORY_EVENTS]
 
 [SOURCES]

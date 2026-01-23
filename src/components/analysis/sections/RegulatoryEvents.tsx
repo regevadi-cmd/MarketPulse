@@ -15,6 +15,9 @@ const EVENT_TYPE_INFO: Record<string, { color: string; label: string }> = {
   settlement: { color: 'bg-amber-500/20 text-amber-400 border-amber-500/30', label: 'Settlement' },
   enforcement: { color: 'bg-rose-500/20 text-rose-400 border-rose-500/30', label: 'Enforcement' },
   investigation: { color: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30', label: 'Investigation' },
+  consent: { color: 'bg-purple-500/20 text-purple-400 border-purple-500/30', label: 'Consent Order' },
+  order: { color: 'bg-indigo-500/20 text-indigo-400 border-indigo-500/30', label: 'Order' },
+  action: { color: 'bg-pink-500/20 text-pink-400 border-pink-500/30', label: 'Action' },
   other: { color: 'bg-zinc-500/20 text-zinc-400 border-zinc-500/30', label: 'Other' },
 };
 
@@ -33,15 +36,10 @@ export function RegulatoryEvents({ events }: RegulatoryEventsProps) {
         {events.length > 0 ? (
           events.map((event, i) => {
             const typeInfo = getEventTypeInfo(event.eventType);
+            const hasUrl = event.url && event.url.startsWith('http');
 
-            return (
-              <a
-                key={i}
-                href={event.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block p-3 bg-zinc-900/50 rounded-lg hover:bg-zinc-800/50 transition-colors group"
-              >
+            const content = (
+              <>
                 <div className="flex flex-wrap items-center gap-2 mb-2">
                   <span className={`px-2 py-0.5 rounded text-xs font-semibold border ${typeInfo.color}`}>
                     {typeInfo.label}
@@ -66,9 +64,30 @@ export function RegulatoryEvents({ events }: RegulatoryEventsProps) {
                   <p className="text-zinc-300 text-sm line-clamp-2 group-hover:text-white transition-colors">
                     {event.description}
                   </p>
-                  <ExternalLink className="w-4 h-4 text-zinc-500 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity mt-0.5" />
+                  {hasUrl && (
+                    <ExternalLink className="w-4 h-4 text-zinc-500 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity mt-0.5" />
+                  )}
                 </div>
+              </>
+            );
+
+            return hasUrl ? (
+              <a
+                key={i}
+                href={event.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block p-3 bg-zinc-900/50 rounded-lg hover:bg-zinc-800/50 transition-colors group"
+              >
+                {content}
               </a>
+            ) : (
+              <div
+                key={i}
+                className="block p-3 bg-zinc-900/50 rounded-lg group"
+              >
+                {content}
+              </div>
             );
           })
         ) : (
