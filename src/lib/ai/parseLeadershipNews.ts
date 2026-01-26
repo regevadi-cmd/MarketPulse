@@ -72,7 +72,7 @@ function extractLeadershipFromArticle(
       const name = cleanName(match[1]);
       const role = cleanRole(match[2], titlePatterns);
 
-      if (isValidName(name) && role && role.length > 2 && role.length < 80) {
+      if (isValidName(name) && role && role.length > 2 && role.length < 80 && !isPoliticalRole(role)) {
         changes.push({
           name,
           role,
@@ -96,7 +96,7 @@ function extractLeadershipFromArticle(
     const role = cleanRole(match[1], titlePatterns);
     const name = cleanName(match[2]);
 
-    if (isValidName(name) && role) {
+    if (isValidName(name) && role && !isPoliticalRole(role)) {
       // Check if we already have this person
       const exists = changes.some(c =>
         c.name.toLowerCase() === name.toLowerCase()
@@ -127,7 +127,7 @@ function extractLeadershipFromArticle(
     // For each valid name, try to find a nearby title
     for (const name of names.slice(0, 3)) {
       for (const title of titlePatterns) {
-        if (text.toLowerCase().includes(title.toLowerCase())) {
+        if (text.toLowerCase().includes(title.toLowerCase()) && !isPoliticalRole(title)) {
           // Check if name and title are within ~100 chars of each other
           const nameIdx = text.toLowerCase().indexOf(name.toLowerCase());
           const titleIdx = text.toLowerCase().indexOf(title.toLowerCase());
@@ -214,11 +214,37 @@ const NOT_NAMES = [
   'inc announces', 'corp announces', 'llc announces', 'ltd announces',
 ];
 
+// Well-known public figures who are NOT company executives
+const PUBLIC_FIGURES = [
+  // US Politicians
+  'joe biden', 'donald trump', 'barack obama', 'kamala harris', 'mike pence',
+  'nancy pelosi', 'mitch mcconnell', 'chuck schumer', 'kevin mccarthy',
+  'hillary clinton', 'bill clinton', 'george bush', 'george w bush',
+  // World Leaders
+  'justin trudeau', 'boris johnson', 'rishi sunak', 'emmanuel macron',
+  'angela merkel', 'vladimir putin', 'xi jinping',
+  // Tech celebrities (often mentioned in articles but not as executives)
+  'elon musk', // unless actually at the company
+];
+
+// Government/political roles that should be filtered out
+const POLITICAL_ROLES = [
+  'president of the united states', 'vice president of the united states',
+  'senator', 'congressman', 'congresswoman', 'representative',
+  'secretary of', 'minister of', 'prime minister', 'governor',
+  'mayor', 'ambassador', 'white house', 'administration',
+];
+
 function isValidName(name: string): boolean {
   const nameLower = name.toLowerCase().trim();
 
   // Check against fake names
   if (FAKE_NAMES.some(fake => nameLower === fake || nameLower.includes(fake))) {
+    return false;
+  }
+
+  // Check against well-known public figures
+  if (PUBLIC_FIGURES.some(figure => nameLower === figure)) {
     return false;
   }
 
@@ -260,4 +286,21 @@ function isValidName(name: string): boolean {
   }
 
   return true;
+}
+
+// Check if a role is a political/government role (not corporate)
+function isPoliticalRole(role: string): boolean {
+  const roleLower = role.toLowerCase();
+
+  // Check for political role keywords
+  if (POLITICAL_ROLES.some(pr => roleLower.includes(pr))) {
+    return true;
+  }
+
+  // "President" alone (not "President of [Company]" or "Co-President") is likely political
+  if (roleLower === 'president' || roleLower === 'the president') {
+    return true;
+  }
+
+  return false;
 }
