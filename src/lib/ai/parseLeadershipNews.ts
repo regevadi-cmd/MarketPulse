@@ -24,16 +24,15 @@ const SKIP_SOURCES = [
 ];
 
 /**
- * Parse leadership news articles to extract individual leadership changes
- * Uses pattern matching to extract names and roles from article content
+ * Convert leadership news articles to displayable items
+ * Shows article headlines with links - more reliable than regex name parsing
  * Focuses on last 5 years from reputable sources
  */
 export function parseLeadershipArticles(
   articles: RawLeadershipArticle[],
-  companyName: string
+  _companyName: string
 ): LeadershipChangeItem[] {
-  const changes: LeadershipChangeItem[] = [];
-  const seenNames = new Set<string>();
+  const seenUrls = new Set<string>();
 
   // Sort articles by source reputation (reputable sources first)
   const sortedArticles = [...articles].sort((a, b) => {
@@ -44,24 +43,47 @@ export function parseLeadershipArticles(
     return 0;
   });
 
+  const results: LeadershipChangeItem[] = [];
+
   for (const article of sortedArticles) {
     // Skip unreliable sources
     if (SKIP_SOURCES.some(s => article.url.toLowerCase().includes(s))) {
       continue;
     }
 
-    const extracted = extractLeadershipFromArticle(article, companyName);
-    for (const change of extracted) {
-      // Deduplicate by name only (keep first occurrence which is from better source)
-      const nameKey = change.name.toLowerCase();
-      if (!seenNames.has(nameKey)) {
-        seenNames.add(nameKey);
-        changes.push(change);
-      }
+    // Skip duplicates
+    if (seenUrls.has(article.url)) {
+      continue;
     }
+    seenUrls.add(article.url);
+
+    // Extract source hostname
+    let source = '';
+    try {
+      source = new URL(article.url).hostname.replace('www.', '');
+    } catch {
+      source = 'Source';
+    }
+
+    // Clean title - remove site name suffixes
+    const title = article.title
+      .replace(/\s*[-|]\s*(Reuters|Bloomberg|CNBC|Forbes|WSJ|Yahoo Finance|Business Wire|PR Newswire).*$/i, '')
+      .replace(/\s*[-|]\s*[A-Za-z]+\.[a-z]+$/i, '')
+      .trim();
+
+    // Use article title as the display, content as summary
+    results.push({
+      name: title,
+      role: article.content?.substring(0, 180) || '',
+      changeType: 'appointed',
+      url: article.url,
+      source
+    });
+
+    if (results.length >= 6) break;
   }
 
-  return changes.slice(0, 6); // Limit to 6 results
+  return results;
 }
 
 function extractLeadershipFromArticle(

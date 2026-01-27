@@ -102,8 +102,9 @@ Name | New Role | Change Type (appointed/promoted/departed/expanded_role) | Date
 [/LEADERSHIP_CHANGES]
 
 [MA_ACTIVITY]
-List mergers, acquisitions, and divestitures in the past 5 years. Format:
-Year | Type (Acquisition/Merger/Divestiture) | Target/Partner | Deal Value (if known) | Strategic Rationale
+List ONLY verified, publicly announced mergers, acquisitions, and divestitures from the past 5 years.
+CRITICAL: Only include deals with REAL company names that you can verify from news sources. Do NOT make up or hallucinate company names like "Fintech Startup XYZ" or "Regional Bank ABC". If you cannot verify real M&A activity, leave this section empty.
+Format: Year | Type (Acquisition/Merger/Divestiture) | Target/Partner (real verified company name) | Deal Value (if known) | Strategic Rationale
 [/MA_ACTIVITY]
 
 [REGULATORY_LANDSCAPE]

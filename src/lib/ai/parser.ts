@@ -85,6 +85,26 @@ function parseQuickFacts(content: string): QuickFacts {
   return facts;
 }
 
+// Patterns that indicate hallucinated/placeholder M&A entries
+const HALLUCINATED_MA_PATTERNS = [
+  // Placeholder letters
+  /\b(xyz|abc|def)\b/i,
+  // Generic placeholder names
+  /\b(startup|company|firm|corp|bank)\s+(xyz|abc|one|two|a|b|c)\b/i,
+  /\b(fintech|tech|digital|regional|local|national)\s+(startup|company|firm)\b/i,
+  // Generic descriptions without real names
+  /^(investment\s+firm|wealth\s+management\s+firm|regional\s+bank|fintech\s+startup|tech\s+company)$/i,
+  /^(non-core\s+asset|asset\s+division|business\s+unit)$/i,
+  // Placeholder patterns
+  /\[(company|name|target)\]/i,
+  /\b(example|sample|placeholder|tbd|n\/a)\b/i,
+];
+
+function isHallucinatedMAEntry(target: string): boolean {
+  const targetLower = target.toLowerCase().trim();
+  return HALLUCINATED_MA_PATTERNS.some(pattern => pattern.test(targetLower));
+}
+
 function parseMAActivity(content: string): MAItem[] {
   if (!content) return [];
   return content
@@ -100,7 +120,7 @@ function parseMAActivity(content: string): MAItem[] {
         rationale: parts[4] || undefined
       };
     })
-    .filter((m) => m.year && m.target);
+    .filter((m) => m.year && m.target && !isHallucinatedMAEntry(m.target));
 }
 
 function parseCompetitorMentions(content: string): CompetitorMentionItem[] {
