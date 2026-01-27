@@ -454,38 +454,45 @@ export async function tavilySearchLeadershipChanges(
   companyName: string,
   apiKey: string
 ): Promise<TavilySearchResult[]> {
+  // Search for recent leadership changes (last 5 years)
+  const currentYear = new Date().getFullYear();
   const response = await tavilySearch(
-    `"${companyName}" (appoints OR appointed OR names OR named OR promotes OR promoted OR hires OR hired OR joins) (CEO OR CFO OR CTO OR COO OR CMO OR "Chief" OR President OR "Vice President" OR Director OR Executive)`,
+    `"${companyName}" executive leadership (appoints OR appointed OR names OR named OR promotes OR hires) (CEO OR CFO OR CTO OR COO OR "Chief Executive" OR "Chief Financial" OR President) ${currentYear - 5}..${currentYear}`,
     apiKey,
-    { maxResults: 10, includeAnswer: false, searchDepth: 'advanced' }
+    { maxResults: 12, includeAnswer: false, searchDepth: 'advanced' }
   );
 
   // Filter results to only include actual news/press releases about leadership
   return response.results.filter(result => {
     const urlLower = result.url.toLowerCase();
     const titleLower = result.title.toLowerCase();
+    const contentLower = (result.content || '').toLowerCase();
 
-    // Must be a news/press release type page
-    const isRelevantPage = urlLower.includes('news') ||
-      urlLower.includes('press') ||
-      urlLower.includes('announce') ||
-      urlLower.includes('blog') ||
-      urlLower.includes('businesswire') ||
-      urlLower.includes('prnewswire') ||
-      urlLower.includes('globenewswire') ||
-      titleLower.includes('appoint') ||
+    // Must mention a leadership action
+    const hasLeadershipAction = titleLower.includes('appoint') ||
       titleLower.includes('name') ||
       titleLower.includes('hire') ||
       titleLower.includes('join') ||
-      titleLower.includes('promote');
+      titleLower.includes('promote') ||
+      titleLower.includes('ceo') ||
+      titleLower.includes('cfo') ||
+      titleLower.includes('chief') ||
+      contentLower.includes('appointed') ||
+      contentLower.includes('named as');
 
-    // Exclude job postings and career pages
-    const isJobPage = urlLower.includes('career') ||
-      urlLower.includes('job') ||
-      urlLower.includes('linkedin.com/jobs') ||
+    // Exclude job postings, career pages, and low-quality sources
+    const isExcludedPage = urlLower.includes('career') ||
+      urlLower.includes('/jobs') ||
+      urlLower.includes('linkedin.com') ||
       urlLower.includes('indeed.com') ||
-      urlLower.includes('glassdoor');
+      urlLower.includes('glassdoor') ||
+      urlLower.includes('ziprecruiter') ||
+      urlLower.includes('wikipedia') ||
+      urlLower.includes('facebook.com') ||
+      urlLower.includes('twitter.com') ||
+      titleLower.includes('privacy') ||
+      titleLower.includes('cookie');
 
-    return isRelevantPage && !isJobPage;
+    return hasLeadershipAction && !isExcludedPage;
   });
 }

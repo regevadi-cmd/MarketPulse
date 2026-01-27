@@ -6,30 +6,62 @@ interface RawLeadershipArticle {
   content: string;
 }
 
+// Reputable sources for leadership news (prioritized)
+const REPUTABLE_SOURCES = [
+  'reuters.com', 'bloomberg.com', 'wsj.com', 'ft.com', 'cnbc.com',
+  'businessinsider.com', 'forbes.com', 'fortune.com', 'barrons.com',
+  'marketwatch.com', 'thestreet.com', 'investopedia.com',
+  'prnewswire.com', 'businesswire.com', 'globenewswire.com',
+  // Company newsrooms are authoritative
+  'newsroom.', '.com/newsroom', '/news/', '/press/',
+];
+
+// Sources to skip entirely
+const SKIP_SOURCES = [
+  'linkedin.com', 'facebook.com', 'twitter.com', 'x.com',
+  'glassdoor.com', 'indeed.com', 'ziprecruiter.com',
+  'wikipedia.org', 'reddit.com',
+];
+
 /**
  * Parse leadership news articles to extract individual leadership changes
  * Uses pattern matching to extract names and roles from article content
+ * Focuses on last 5 years from reputable sources
  */
 export function parseLeadershipArticles(
   articles: RawLeadershipArticle[],
   companyName: string
 ): LeadershipChangeItem[] {
   const changes: LeadershipChangeItem[] = [];
-  const seenPeople = new Set<string>();
+  const seenNames = new Set<string>();
 
-  for (const article of articles) {
+  // Sort articles by source reputation (reputable sources first)
+  const sortedArticles = [...articles].sort((a, b) => {
+    const aReputable = REPUTABLE_SOURCES.some(s => a.url.toLowerCase().includes(s));
+    const bReputable = REPUTABLE_SOURCES.some(s => b.url.toLowerCase().includes(s));
+    if (aReputable && !bReputable) return -1;
+    if (!aReputable && bReputable) return 1;
+    return 0;
+  });
+
+  for (const article of sortedArticles) {
+    // Skip unreliable sources
+    if (SKIP_SOURCES.some(s => article.url.toLowerCase().includes(s))) {
+      continue;
+    }
+
     const extracted = extractLeadershipFromArticle(article, companyName);
     for (const change of extracted) {
-      // Deduplicate by name+role
-      const key = `${change.name.toLowerCase()}-${change.role.toLowerCase()}`;
-      if (!seenPeople.has(key)) {
-        seenPeople.add(key);
+      // Deduplicate by name only (keep first occurrence which is from better source)
+      const nameKey = change.name.toLowerCase();
+      if (!seenNames.has(nameKey)) {
+        seenNames.add(nameKey);
         changes.push(change);
       }
     }
   }
 
-  return changes.slice(0, 8); // Limit to 8 results
+  return changes.slice(0, 6); // Limit to 6 results
 }
 
 function extractLeadershipFromArticle(
@@ -207,11 +239,29 @@ const NOT_NAMES = [
   'san francisco', 'announces new', 'names new', 'appoints new', 'hires new',
   'promoted to', 'steps down', 'steps up', 'takes over', 'joins as',
   'company announces', 'firm announces', 'corporation announces',
+  'changes chair', 'names chair', 'elects chair', 'appoints chair',
   // Partial phrases
   'adviser to', 'advisor to', 'counsel to', 'assistant to',
   'head of', 'director of', 'manager of', 'leader of',
   // Company name patterns
   'inc announces', 'corp announces', 'llc announces', 'ltd announces',
+  // Webpage elements
+  'your privacy', 'privacy policy', 'cookie policy', 'terms of', 'sign in',
+  'sign up', 'subscribe now', 'read more', 'learn more', 'click here',
+  'breaking news', 'latest news', 'top stories', 'related articles',
+  // Common research/analyst firms (not people)
+  'argus research', 'morningstar research', 'goldman sachs', 'morgan stanley',
+  'jp morgan', 'bank of america', 'wells fargo', 'citigroup', 'barclays',
+  'credit suisse', 'deutsche bank', 'ubs research', 'jefferies research',
+];
+
+// Company name suffixes and patterns that indicate it's not a person's name
+const COMPANY_INDICATORS = [
+  'research', 'capital', 'partners', 'holdings', 'group', 'fund', 'trust',
+  'investments', 'securities', 'financial', 'consulting', 'advisors',
+  'associates', 'solutions', 'services', 'management', 'ventures',
+  'analytics', 'technologies', 'systems', 'networks', 'media', 'global',
+  'international', 'corp', 'inc', 'llc', 'ltd', 'plc', 'sa', 'ag',
 ];
 
 // Well-known public figures who are NOT company executives
@@ -248,8 +298,13 @@ function isValidName(name: string): boolean {
     return false;
   }
 
-  // Check against non-name phrases (titles, places, headline words)
+  // Check against non-name phrases (titles, places, headline words, webpage elements)
   if (NOT_NAMES.some(phrase => nameLower === phrase || nameLower.startsWith(phrase) || nameLower.endsWith(phrase))) {
+    return false;
+  }
+
+  // Check if it looks like a company name (contains company indicators)
+  if (COMPANY_INDICATORS.some(indicator => nameLower.includes(indicator))) {
     return false;
   }
 
@@ -274,8 +329,14 @@ function isValidName(name: string): boolean {
     return false;
   }
 
-  // Reject if any part is a common title word
-  const titleWords = ['chief', 'vice', 'president', 'director', 'officer', 'manager', 'executive', 'senior', 'head', 'board', 'adviser', 'advisor', 'counsel', 'assistant', 'announces', 'appoints', 'names', 'hires', 'promoted', 'appointed'];
+  // Reject if any part is a common title word or action word
+  const titleWords = [
+    'chief', 'vice', 'president', 'director', 'officer', 'manager', 'executive',
+    'senior', 'head', 'board', 'adviser', 'advisor', 'counsel', 'assistant',
+    'announces', 'appoints', 'names', 'hires', 'promoted', 'appointed',
+    'changes', 'elects', 'nominates', 'selects', 'picks', 'taps',
+    'privacy', 'policy', 'terms', 'cookie', 'subscribe', 'breaking', 'latest'
+  ];
   if (parts.some(p => titleWords.includes(p.toLowerCase()))) {
     return false;
   }
