@@ -110,7 +110,7 @@ Format: Year | Type (Acquisition/Merger/Divestiture) | Target/Partner (real veri
 [REGULATORY_LANDSCAPE]
 Search the company's Legal, Compliance, and About pages, as well as Wikipedia and other public sources for information about their regulatory environment.
 List the regulatory bodies that oversee or interact with "${companyName}". Include bodies such as SEC, FINRA, FCA, CFTC, ESMA, OCC, FDIC, Federal Reserve, PRA, MAS, ASIC, BaFin, AMF, and other relevant financial/industry regulators.
-Format: Regulatory Body | Brief context of the relationship (e.g., "Primary securities regulator", "Banking supervisor", "Registered broker-dealer") | Source URL (if available)
+Format: Regulatory Body (use SHORT name/acronym only, e.g., "SEC" not "SEC (Securities and Exchange Commission)") | Brief context of the relationship (e.g., "Primary securities regulator", "Banking supervisor", "Registered broker-dealer") | Source URL (if available)
 [/REGULATORY_LANDSCAPE]
 
 [REGULATORY_EVENTS]
