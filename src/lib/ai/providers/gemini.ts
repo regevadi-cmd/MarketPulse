@@ -1,11 +1,11 @@
-import { GoogleGenerativeAI, Tool } from '@google/generative-ai';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import { BaseAIProvider, AIProviderConfig } from './base';
 import { AnalysisResult } from '@/types/analysis';
 import { parseTaggedResponse } from '../parser';
 
 export class GeminiProvider extends BaseAIProvider {
   readonly name = 'gemini';
-  readonly supportsWebGrounding = true;
+  readonly supportsWebGrounding = false; // Using Tavily for better search results
 
   private client: GoogleGenerativeAI;
 
@@ -19,12 +19,8 @@ export class GeminiProvider extends BaseAIProvider {
   }
 
   async analyzeCompany(companyName: string): Promise<AnalysisResult> {
-    // Use type assertion for googleSearch tool which is valid but not in current types
-    const googleSearchTool = { googleSearch: {} } as unknown as Tool;
-
     const model = this.client.getGenerativeModel({
-      model: this.model,
-      tools: [googleSearchTool]
+      model: this.model
     });
 
     const prompt = this.getAnalysisPrompt(companyName);

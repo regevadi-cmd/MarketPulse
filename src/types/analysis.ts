@@ -101,8 +101,8 @@ export interface ProviderInfo {
 export const PROVIDER_INFO: Record<ProviderName, ProviderInfo> = {
   gemini: {
     name: 'Google Gemini',
-    description: 'Real-time web grounding via Google Search',
-    supportsWebGrounding: true,
+    description: 'Fast and intelligent with Tavily search',
+    supportsWebGrounding: false,
     keyUrl: 'https://aistudio.google.com/apikey',
     icon: 'sparkles',
     models: [
