@@ -251,8 +251,11 @@ export default function Home() {
           // Save to history using effective provider (only for fresh analyses)
           addToHistory(company, effectiveProvider, successData.data);
 
-          const webSearchNote = successData.webSearchUsed ? ' with web search' : '';
-          toast.success(`Analysis complete using ${PROVIDER_INFO[effectiveProvider].name}${webSearchNote}`);
+          const modelName = PROVIDER_INFO[effectiveProvider].models.find(m => m.id === effectiveModel)?.name || effectiveModel;
+          const webSearchNote = successData.webSearchUsed
+            ? ` + ${effectiveWebSearchProvider === 'tavily' ? 'Tavily' : effectiveWebSearchProvider === 'claude' ? 'Claude Search' : 'WebSearchAPI'}`
+            : '';
+          toast.success(`Analysis complete using ${PROVIDER_INFO[effectiveProvider].name} (${modelName})${webSearchNote}`);
         }
 
         // Show warning if web search failed
@@ -267,7 +270,7 @@ export default function Home() {
         setLoading(false);
       }
     },
-    [isAuthenticated, effectiveProvider, addToHistory]
+    [isAuthenticated, effectiveProvider, effectiveModel, effectiveWebSearchProvider, addToHistory]
   );
 
   // Check for cached analysis and show dialog if exists
@@ -540,10 +543,10 @@ export default function Home() {
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-5 h-5 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
                   <span className="text-muted-foreground">
-                    Analyzing {companyName} with {PROVIDER_INFO[effectiveProvider].name}
+                    Analyzing {companyName} with {PROVIDER_INFO[effectiveProvider].name} ({PROVIDER_INFO[effectiveProvider].models.find(m => m.id === effectiveModel)?.name || effectiveModel})
                     {!PROVIDER_INFO[effectiveProvider].supportsWebGrounding &&
                      effectiveWebSearchProvider !== 'none' && (
-                      <span className="text-cyan-400"> + {effectiveWebSearchProvider === 'tavily' ? 'Tavily' : 'WebSearchAPI'}</span>
+                      <span className="text-cyan-400"> + {effectiveWebSearchProvider === 'tavily' ? 'Tavily' : effectiveWebSearchProvider === 'claude' ? 'Claude Search' : 'WebSearchAPI'}</span>
                     )}
                     ...
                   </span>

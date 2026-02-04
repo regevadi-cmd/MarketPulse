@@ -176,7 +176,7 @@ export async function PUT(request: NextRequest) {
 
     // Web search settings
     if (body.web_search_provider) {
-      const validSearchProviders = ['tavily', 'websearchapi', 'none'];
+      const validSearchProviders = ['tavily', 'claude', 'websearchapi', 'none'];
       if (validSearchProviders.includes(body.web_search_provider)) {
         updateData.web_search_provider = body.web_search_provider;
       }
