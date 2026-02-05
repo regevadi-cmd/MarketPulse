@@ -285,6 +285,82 @@ export interface ClaudeCompetitorMention {
   mentionType: 'customer' | 'partner' | 'case_study' | 'press_release' | 'integration' | 'other';
 }
 
+// Competitor domain mappings for URL validation
+const COMPETITOR_DOMAINS: Record<string, string[]> = {
+  'Smarsh': ['smarsh.com'],
+  'Global Relay': ['globalrelay.com'],
+  'NICE': ['nice.com', 'niceactimize.com'],
+  'Verint': ['verint.com'],
+  'Arctera': ['arctera.io'],
+  'Veritas': ['veritas.com'],
+  'Proofpoint': ['proofpoint.com'],
+  'Shield': ['shieldfc.com'],
+  'Behavox': ['behavox.com'],
+  'Mimecast': ['mimecast.com'],
+  'ZL Technologies': ['zlti.com'],
+  'Digital Reasoning': ['digitalreasoning.com'],
+};
+
+// Validate URL belongs to claimed competitor
+function isValidCompetitorUrl(url: string, competitorName: string): boolean {
+  try {
+    const urlObj = new URL(url);
+    const hostname = urlObj.hostname.toLowerCase();
+    const validDomains = COMPETITOR_DOMAINS[competitorName] || [];
+
+    return validDomains.some(domain => {
+      const domainLower = domain.toLowerCase();
+      return hostname === domainLower ||
+             hostname.endsWith('.' + domainLower) ||
+             hostname === 'www.' + domainLower;
+    });
+  } catch {
+    return false;
+  }
+}
+
+// Check if URL is a generic listing/index page (likely hallucinated)
+function isGenericListingPage(url: string): boolean {
+  try {
+    const path = new URL(url).pathname.toLowerCase();
+
+    // Reject URLs that end with generic listing paths
+    const genericPatterns = [
+      /\/customers\/?$/,
+      /\/clients\/?$/,
+      /\/case-studies\/?$/,
+      /\/case-study\/?$/,
+      /\/resources\/?$/,
+      /\/resources\/case-studies\/?$/,
+      /\/success-stories\/?$/,
+      /\/testimonials\/?$/,
+      /\/partners\/?$/,
+      /\/integrations\/?$/,
+      /\/solutions\/?$/,
+      /\/industries\/?$/,
+      /\/news\/?$/,
+      /\/press\/?$/,
+      /\/blog\/?$/,
+    ];
+
+    for (const pattern of genericPatterns) {
+      if (pattern.test(path)) {
+        return true;
+      }
+    }
+
+    // Also reject very short paths (likely index pages)
+    const pathParts = path.split('/').filter(p => p.length > 0);
+    if (pathParts.length <= 1) {
+      return true;
+    }
+
+    return false;
+  } catch {
+    return true; // Invalid URL, reject it
+  }
+}
+
 export async function claudeSearchCompetitorMentions(
   companyName: string,
   apiKey: string
@@ -295,13 +371,31 @@ export async function claudeSearchCompetitorMentions(
 
   const systemPrompt = `You are a competitive intelligence researcher. Search for technology-related mentions of the specified company on competitor websites.
 
-Look for: customer case studies, technology partnerships, product integrations, competitive comparisons, press releases.
+CRITICAL REQUIREMENTS - READ CAREFULLY:
+1. Only report mentions that you actually found via web search with SPECIFIC URLs
+2. Every URL must point to a SPECIFIC page about the company (NOT generic listing pages)
+3. Do NOT fabricate or hallucinate any mentions - if you don't find real results, return an empty array
+4. The URL hostname must match the competitor's domain
 
-For each mention found, extract:
+REJECTED URL PATTERNS (do not use these):
+- /customers/ or /customers (generic customer listing)
+- /case-studies/ or /case-studies (generic case study index)
+- /resources/case-studies (generic listing)
+- /partners/ (generic partner listing)
+- /success-stories/ (generic listing)
+- Any URL ending in a category name without a specific page identifier
+
+ACCEPTED URL PATTERNS (use these):
+- /customers/company-name (specific customer page)
+- /case-studies/company-name-story (specific case study)
+- /blog/2023/company-announcement (specific article)
+- /news/press-release-title (specific press release)
+
+For each VERIFIED mention found with a SPECIFIC URL, extract:
 - competitorName: The competitor company name
-- title: The page/article title
-- url: The source URL
-- summary: Brief summary of the technology relevance
+- title: The exact page/article title from the webpage
+- url: The SPECIFIC URL (not a listing page)
+- summary: Direct quote from the actual page content
 - mentionType: One of: customer, partner, case_study, press_release, integration, other
 
 Return as JSON:
@@ -311,7 +405,9 @@ Return as JSON:
   ]
 }
 
-Only include REAL mentions with actual URLs from competitor websites. Focus on technology-related content, not financial advisory roles.`;
+If you cannot find specific pages mentioning the company, return: {"mentions": []}
+
+DO NOT return generic listing page URLs. Only return URLs to specific content pages.`;
 
   const response = await client.messages.create({
     model: 'claude-sonnet-4-5-20250929',
@@ -326,7 +422,7 @@ Only include REAL mentions with actual URLs from competitor websites. Focus on t
     messages: [
       {
         role: 'user',
-        content: `Search for technology-related mentions of "${companyName}" on these competitor websites: ${competitors.join(', ')}. Look for customer stories, integrations, partnerships, and case studies.`,
+        content: `Search for technology-related mentions of "${companyName}" on these competitor websites: ${competitors.join(', ')}. Look for customer stories, integrations, partnerships, and case studies. Only report results with verified URLs.`,
       },
     ],
     system: systemPrompt,
@@ -343,6 +439,26 @@ Only include REAL mentions with actual URLs from competitor websites. Focus on t
           if (parsed.mentions && Array.isArray(parsed.mentions)) {
             for (const m of parsed.mentions) {
               if (m.competitorName && m.url && m.title) {
+                // Validate URL format
+                try {
+                  new URL(m.url);
+                } catch {
+                  console.warn(`Rejecting mention: Invalid URL format ${m.url}`);
+                  continue;
+                }
+
+                // CRITICAL: Validate URL belongs to the claimed competitor
+                if (!isValidCompetitorUrl(m.url, m.competitorName)) {
+                  console.warn(`Rejecting mention: URL ${m.url} does not match competitor ${m.competitorName}`);
+                  continue;
+                }
+
+                // CRITICAL: Reject generic listing/index pages (likely hallucinated)
+                if (isGenericListingPage(m.url)) {
+                  console.warn(`Rejecting mention: Generic listing page ${m.url}`);
+                  continue;
+                }
+
                 mentions.push({
                   competitorName: m.competitorName,
                   title: m.title,

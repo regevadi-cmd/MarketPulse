@@ -1,12 +1,16 @@
 'use client';
 
-import { Info, Github, ExternalLink } from 'lucide-react';
+import { useState } from 'react';
+import { Info, Github, ExternalLink, FileText } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { ReleaseNotesModal } from './ReleaseNotesModal';
+import { buildInfo } from '@/lib/buildInfo';
 
 interface AboutModalProps {
   open: boolean;
@@ -14,17 +18,17 @@ interface AboutModalProps {
 }
 
 export function AboutModal({ open, onOpenChange }: AboutModalProps) {
+  const [showReleaseNotes, setShowReleaseNotes] = useState(false);
+
   const version = process.env.NEXT_PUBLIC_APP_VERSION || '1.0.0';
-  const buildId = process.env.NEXT_PUBLIC_BUILD_ID || 'dev';
-  const buildDate = process.env.NEXT_PUBLIC_BUILD_DATE
-    ? new Date(process.env.NEXT_PUBLIC_BUILD_DATE).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      })
-    : 'Development';
+  const buildId = buildInfo.commitHash;
+  const buildDate = new Date(buildInfo.buildDate).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -91,6 +95,17 @@ export function AboutModal({ open, onOpenChange }: AboutModalProps) {
               <span className="text-zinc-400 text-sm">Built</span>
               <span className="text-zinc-300 text-sm">{buildDate}</span>
             </div>
+            <div className="pt-2 border-t border-zinc-700">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowReleaseNotes(true)}
+                className="w-full text-zinc-400 hover:text-white hover:bg-zinc-700/50"
+              >
+                <FileText className="w-4 h-4 mr-2" />
+                View Release Notes
+              </Button>
+            </div>
           </div>
 
           {/* Links */}
@@ -113,6 +128,12 @@ export function AboutModal({ open, onOpenChange }: AboutModalProps) {
           </p>
         </div>
       </DialogContent>
+
+      {/* Release Notes Modal */}
+      <ReleaseNotesModal
+        open={showReleaseNotes}
+        onOpenChange={setShowReleaseNotes}
+      />
     </Dialog>
   );
 }

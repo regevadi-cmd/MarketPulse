@@ -86,57 +86,10 @@ export function AnalysisDashboard({
   const isSharedCache = sharedCacheMetadata !== null && sharedCacheMetadata !== undefined;
   const isSharedCacheStale = isSharedCache && sharedCacheMetadata.ageMinutes > 24 * 60;
 
-  const handleExportPDF = async () => {
-    if (!dashboardRef.current || isExporting) return;
-
-    setIsExporting(true);
-    try {
-      // Dynamic imports to avoid SSR issues
-      const html2canvas = (await import('html2canvas')).default;
-      const { jsPDF } = await import('jspdf');
-
-      const element = dashboardRef.current;
-      const filename = `${companyName.replace(/[^a-zA-Z0-9]/g, '_')}_Analysis_${new Date().toISOString().split('T')[0]}.pdf`;
-
-      // Capture the element as canvas
-      const canvas = await html2canvas(element, {
-        scale: 2,
-        useCORS: true,
-        logging: false,
-        backgroundColor: '#ffffff',
-      });
-
-      // Calculate dimensions for A4
-      const imgWidth = 210; // A4 width in mm
-      const pageHeight = 297; // A4 height in mm
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-      // Create PDF
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      let heightLeft = imgHeight;
-      let position = 0;
-
-      // Add image to first page
-      const imgData = canvas.toDataURL('image/jpeg', 0.95);
-      pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
-
-      // Add additional pages if content is longer than one page
-      while (heightLeft > 0) {
-        position = heightLeft - imgHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-      }
-
-      // Save the PDF
-      pdf.save(filename);
-    } catch (error) {
-      console.error('PDF export failed:', error);
-      alert('PDF export failed. Please try again.');
-    } finally {
-      setIsExporting(false);
-    }
+  const handleExportPDF = () => {
+    // Use browser's native print-to-PDF functionality
+    // This is the most reliable cross-browser solution
+    window.print();
   };
 
   return (

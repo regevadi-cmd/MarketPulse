@@ -243,6 +243,116 @@ function createTechSummary(content: string, companyName: string): string {
   return content.substring(0, 150).trim() + (content.length > 150 ? '...' : '');
 }
 
+// Validate that URL actually belongs to the expected competitor domain
+function isValidCompetitorUrl(url: string, expectedDomain: string): boolean {
+  try {
+    const urlObj = new URL(url);
+    const hostname = urlObj.hostname.toLowerCase();
+    const domainLower = expectedDomain.toLowerCase();
+
+    // Check if hostname matches or is a subdomain of the expected domain
+    return hostname === domainLower ||
+           hostname.endsWith('.' + domainLower) ||
+           hostname === 'www.' + domainLower;
+  } catch {
+    return false;
+  }
+}
+
+// Check if URL is a generic listing/index page (likely hallucinated)
+function isGenericListingPage(url: string): boolean {
+  const urlLower = url.toLowerCase();
+  const path = new URL(url).pathname.toLowerCase();
+
+  // Reject URLs that end with generic listing paths
+  const genericPatterns = [
+    /\/customers\/?$/,
+    /\/clients\/?$/,
+    /\/case-studies\/?$/,
+    /\/case-study\/?$/,
+    /\/resources\/?$/,
+    /\/resources\/case-studies\/?$/,
+    /\/success-stories\/?$/,
+    /\/testimonials\/?$/,
+    /\/partners\/?$/,
+    /\/integrations\/?$/,
+    /\/solutions\/?$/,
+    /\/industries\/?$/,
+    /\/news\/?$/,
+    /\/press\/?$/,
+    /\/blog\/?$/,
+  ];
+
+  // Check if URL matches any generic pattern
+  for (const pattern of genericPatterns) {
+    if (pattern.test(path)) {
+      return true;
+    }
+  }
+
+  // Also reject very short paths (likely index pages)
+  const pathParts = path.split('/').filter(p => p.length > 0);
+  if (pathParts.length <= 1) {
+    return true;
+  }
+
+  return false;
+}
+
+// Check if content is actually grounded (not hallucinated)
+function isGroundedContent(content: string, title: string, companyName: string): boolean {
+  const companyLower = companyName.toLowerCase();
+  const contentLower = content.toLowerCase();
+  const titleLower = title.toLowerCase();
+
+  // Company name must appear in the actual content (not just claimed)
+  const companyInContent = contentLower.includes(companyLower);
+  const companyInTitle = titleLower.includes(companyLower);
+
+  if (!companyInContent && !companyInTitle) {
+    return false;
+  }
+
+  // Content must be substantial (not just a generic description)
+  if (content.length < 50) {
+    return false;
+  }
+
+  // Check for signs of hallucination - generic phrases without specifics
+  const hallucinationIndicators = [
+    'leading provider of',
+    'trusted by',
+    'helps organizations',
+    'enables companies',
+    'comprehensive solution',
+    'industry-leading',
+    'best-in-class',
+    'world-class'
+  ];
+
+  const genericPhraseCount = hallucinationIndicators.filter(phrase =>
+    contentLower.includes(phrase)
+  ).length;
+
+  // If content is mostly generic marketing speak without specific details, reject
+  if (genericPhraseCount >= 3 && !contentLower.includes(companyLower)) {
+    return false;
+  }
+
+  // Must have specific verifiable details - names, dates, or concrete facts
+  const hasSpecificDetails =
+    /\b(20\d{2})\b/.test(content) || // Year mentioned
+    /\$[\d,]+/.test(content) || // Dollar amount
+    /\d+%/.test(content) || // Percentage
+    /\d+ (employees?|users?|customers?|years?)/.test(contentLower) || // Numbers with context
+    contentLower.includes('announced') ||
+    contentLower.includes('selected') ||
+    contentLower.includes('deployed') ||
+    contentLower.includes('implemented');
+
+  return hasSpecificDetails || (companyInTitle && companyInContent);
+}
+
 export async function tavilySearchCompetitorMentions(
   companyName: string,
   apiKey: string
@@ -267,7 +377,19 @@ export async function tavilySearchCompetitorMentions(
         const contentLower = result.content.toLowerCase();
         const companyLower = companyName.toLowerCase();
 
-        // Must mention the company name
+        // CRITICAL: Verify URL actually belongs to the competitor domain
+        if (!isValidCompetitorUrl(result.url, domain)) {
+          console.warn(`URL ${result.url} does not match expected domain ${domain}`);
+          return false;
+        }
+
+        // CRITICAL: Reject generic listing/index pages (likely hallucinated content)
+        if (isGenericListingPage(result.url)) {
+          console.warn(`Rejecting generic listing page: ${result.url}`);
+          return false;
+        }
+
+        // Must mention the company name in actual content
         const mentionsCompany = titleLower.includes(companyLower) ||
           contentLower.includes(companyLower);
 
@@ -279,6 +401,12 @@ export async function tavilySearchCompetitorMentions(
         );
 
         if (isExcludedPage) return false;
+
+        // Check for hallucination - content must be grounded
+        if (!isGroundedContent(result.content, result.title, companyName)) {
+          console.warn(`Content appears to be hallucinated for ${companyName} on ${domain}`);
+          return false;
+        }
 
         // STRICT content check - must describe a real business relationship
         const isRealRelationship = isBusinessRelationship(result.content, result.title, companyName);
