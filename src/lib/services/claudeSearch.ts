@@ -462,20 +462,31 @@ DO NOT return generic listing page URLs. Only return URLs to specific content pa
             for (const m of parsed.mentions) {
               if (m.competitorName && m.url && m.title) {
                 // Validate URL format
+                let urlObj: URL;
                 try {
-                  new URL(m.url);
+                  urlObj = new URL(m.url);
                 } catch {
                   console.warn(`Rejecting mention: Invalid URL format ${m.url}`);
                   continue;
                 }
 
-                // CRITICAL: Validate URL belongs to the claimed competitor
+                // CRITICAL: URL must contain company name (strongest anti-hallucination check)
+                const companyWords = companyName.toLowerCase().split(/\s+/).filter(w => w.length > 2);
+                const path = urlObj.pathname.toLowerCase();
+                const urlContainsCompany = companyWords.some(word => path.includes(word));
+
+                if (!urlContainsCompany) {
+                  console.warn(`Rejecting mention: Company name not in URL ${m.url}`);
+                  continue;
+                }
+
+                // Validate URL belongs to the claimed competitor
                 if (!isValidCompetitorUrl(m.url, m.competitorName)) {
                   console.warn(`Rejecting mention: URL ${m.url} does not match competitor ${m.competitorName}`);
                   continue;
                 }
 
-                // CRITICAL: Reject generic listing/index pages (likely hallucinated)
+                // Reject generic listing/index pages
                 if (isGenericListingPage(m.url)) {
                   console.warn(`Rejecting mention: Generic listing page ${m.url}`);
                   continue;

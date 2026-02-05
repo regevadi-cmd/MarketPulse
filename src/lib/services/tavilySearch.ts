@@ -383,77 +383,52 @@ export async function tavilySearchCompetitorMentions(
   apiKey: string
 ): Promise<CompetitorMention[]> {
   const mentions: CompetitorMention[] = [];
+  const companyLower = companyName.toLowerCase().replace(/[^a-z0-9]/g, '');
+  const companyWords = companyName.toLowerCase().split(/\s+/).filter(w => w.length > 2);
 
   // Search for the company across all competitor domains in parallel
-  // Focus specifically on deployments, partnerships, case studies, press releases
   const searchPromises = COMPETITOR_DOMAINS.map(async (domain) => {
     try {
-      // More specific search query focused on business relationships
       const response = await tavilySearch(
-        `"${companyName}" site:${domain} (customer OR "case study" OR deploys OR partnership OR "press release" OR announcement)`,
+        `"${companyName}" site:${domain} (customer OR "case study" OR partnership OR announcement)`,
         apiKey,
         { maxResults: 3, includeAnswer: false, searchDepth: 'advanced' }
       );
 
-      // Strict filtering for actual business relationships
+      // AGGRESSIVE filtering - only accept results with very high confidence
       const relevantResults = response.results.filter(result => {
         const urlLower = result.url.toLowerCase();
-        const titleLower = result.title.toLowerCase();
-        const contentLower = result.content.toLowerCase();
-        const companyLower = companyName.toLowerCase();
+        const path = new URL(result.url).pathname.toLowerCase();
 
-        // CRITICAL: Verify URL actually belongs to the competitor domain
-        if (!isValidCompetitorUrl(result.url, domain)) {
-          console.warn(`URL ${result.url} does not match expected domain ${domain}`);
-          return false;
-        }
-
-        // CRITICAL: Reject generic listing/index pages (likely hallucinated content)
-        if (isGenericListingPage(result.url)) {
-          console.warn(`Rejecting generic listing page: ${result.url}`);
-          return false;
-        }
-
-        // Must mention the company name in actual content
-        const mentionsCompany = titleLower.includes(companyLower) ||
-          contentLower.includes(companyLower);
-
-        if (!mentionsCompany) return false;
-
-        // STRICT URL exclusions - reject these page types entirely
-        const isExcludedPage = urlLower.match(
-          /(career|job|team|leadership|executive|people|staff|management|about-us|about\/|contact|pricing|demo|login|signup|privacy|terms|webinar|event|conference|speaker|press-kit|media-kit|investor|board|governance)/
+        // CRITICAL: URL must contain company name or a significant word from company name
+        // This is the strongest anti-hallucination check
+        const urlContainsCompany = companyWords.some(word =>
+          path.includes(word) || urlLower.includes(word)
         );
 
-        if (isExcludedPage) return false;
-
-        // Check for hallucination - content must be grounded
-        if (!isGroundedContent(result.content, result.title, companyName)) {
-          console.warn(`Content appears to be hallucinated for ${companyName} on ${domain}`);
+        if (!urlContainsCompany) {
+          console.warn(`Rejecting - company name not in URL: ${result.url}`);
           return false;
         }
 
-        // STRICT content check - must describe a real business relationship
-        const isRealRelationship = isBusinessRelationship(result.content, result.title, companyName);
+        // Verify URL belongs to the competitor domain
+        if (!isValidCompetitorUrl(result.url, domain)) {
+          return false;
+        }
 
-        // Only accept if URL clearly indicates a SPECIFIC case study or customer story (not listing pages)
-        // Must have additional path segments after the category (e.g., /customers/truist-story not /customers/)
-        const isSpecificCustomerContent = urlLower.match(/(case-study|casestudy|customer-story|customer-success)\/.+/) ||
-          urlLower.match(/customers\/[a-z0-9-]+/) ||
-          urlLower.match(/clients\/[a-z0-9-]+/);
+        // Reject generic listing pages
+        if (isGenericListingPage(result.url)) {
+          return false;
+        }
 
-        return isRealRelationship || isSpecificCustomerContent;
+        return true;
       });
 
-      // Validate URLs actually exist (filter out 404s)
+      // Validate URLs actually exist
       const validatedResults = await Promise.all(
         relevantResults.map(async (result) => {
           const exists = await validateUrlExists(result.url);
-          if (!exists) {
-            console.warn(`URL does not exist or returns error: ${result.url}`);
-            return null;
-          }
-          return result;
+          return exists ? result : null;
         })
       );
 
@@ -467,7 +442,6 @@ export async function tavilySearchCompetitorMentions(
           mentionType: inferMentionType(result.url, result.content)
         }));
     } catch (err) {
-      // Silently fail for individual competitor searches
       console.warn(`Failed to search ${domain} for ${companyName}:`, err);
       return [];
     }
