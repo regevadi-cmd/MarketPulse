@@ -325,7 +325,7 @@ export function UsageCosts() {
 
 function CostCard({ title, data }: { title: string; data: UsagePeriod }) {
   return (
-    <div className="bg-card/50 border border-border rounded-lg p-3 overflow-hidden">
+    <div className="bg-card/50 border border-border rounded-lg p-3">
       <p className="text-xs text-muted-foreground mb-1">{title}</p>
       <p className="text-lg font-bold text-foreground">{formatCost(data.totalCost)}</p>
       <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[10px] text-muted-foreground mt-1">

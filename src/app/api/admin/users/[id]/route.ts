@@ -41,13 +41,25 @@ export async function PATCH(
       return NextResponse.json({ error: 'Invalid role. Must be "admin" or "user"' }, { status: 400 });
     }
 
+    // Use service role client to bypass RLS
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+    if (!supabaseUrl || !serviceRoleKey) {
+      return NextResponse.json({ error: 'Service role key not configured' }, { status: 500 });
+    }
+
+    const adminClient = createAdminClient(supabaseUrl, serviceRoleKey, {
+      auth: { autoRefreshToken: false, persistSession: false }
+    });
+
     // Update role in profiles table
-    const { data: updatedProfile, error: updateError } = await (supabase as any)
+    const { data: updatedProfile, error: updateError } = await adminClient
       .from('profiles')
       .update({ role })
       .eq('id', userIdToUpdate)
       .select('email, role')
-      .single() as { data: { email: string; role: string } | null; error: any };
+      .single();
 
     if (updateError) {
       console.error('Error updating role:', updateError);
@@ -58,7 +70,7 @@ export async function PATCH(
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    return NextResponse.json({ success: true, message: `User ${updatedProfile.email} role updated to ${role}` });
+    return NextResponse.json({ success: true, message: `User ${(updatedProfile as any).email} role updated to ${role}` });
   } catch (error) {
     console.error('Update role API error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

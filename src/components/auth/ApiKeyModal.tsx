@@ -289,25 +289,25 @@ export function ApiKeyModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-zinc-900 border-zinc-800 text-white sm:max-w-2xl overflow-hidden">
+      <DialogContent className="bg-background border-border text-foreground sm:max-w-2xl overflow-hidden">
         <DialogHeader>
           <DialogTitle className="text-xl flex items-center gap-2">
-            <Settings className="w-5 h-5 text-zinc-400" />
+            <Settings className="w-5 h-5 text-muted-foreground" />
             Settings
           </DialogTitle>
-          <DialogDescription className="text-zinc-400">
+          <DialogDescription className="text-muted-foreground">
             Configure your AI provider and web search preferences
           </DialogDescription>
         </DialogHeader>
 
         {/* Tab Navigation */}
-        <div className="flex gap-1 p-1 bg-zinc-800/50 rounded-lg">
+        <div className="flex gap-1 p-1 bg-muted/50 rounded-lg">
           <button
             onClick={() => setActiveTab('preferences')}
             className={`flex-1 flex items-center justify-center gap-2 px-2 sm:px-3 py-2 rounded-md text-xs sm:text-sm font-medium transition-colors ${
               activeTab === 'preferences'
-                ? 'bg-zinc-700 text-white'
-                : 'text-zinc-400 hover:text-white'
+                ? 'bg-accent text-foreground'
+                : 'text-muted-foreground hover:text-foreground'
             }`}
           >
             <Sliders className="w-4 h-4" />
@@ -320,8 +320,8 @@ export function ApiKeyModal({
                 onClick={() => setActiveTab('provider')}
                 className={`flex-1 flex items-center justify-center gap-2 px-2 sm:px-3 py-2 rounded-md text-xs sm:text-sm font-medium transition-colors ${
                   activeTab === 'provider'
-                    ? 'bg-zinc-700 text-white'
-                    : 'text-zinc-400 hover:text-white'
+                    ? 'bg-accent text-foreground'
+                    : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
                 <Cpu className="w-4 h-4" />
@@ -332,8 +332,8 @@ export function ApiKeyModal({
                 onClick={() => setActiveTab('websearch')}
                 className={`flex-1 flex items-center justify-center gap-2 px-2 sm:px-3 py-2 rounded-md text-xs sm:text-sm font-medium transition-colors ${
                   activeTab === 'websearch'
-                    ? 'bg-zinc-700 text-white'
-                    : 'text-zinc-400 hover:text-white'
+                    ? 'bg-accent text-foreground'
+                    : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
                 <Search className="w-4 h-4" />
@@ -344,8 +344,8 @@ export function ApiKeyModal({
                 onClick={() => setActiveTab('users')}
                 className={`flex-1 flex items-center justify-center gap-2 px-2 sm:px-3 py-2 rounded-md text-xs sm:text-sm font-medium transition-colors ${
                   activeTab === 'users'
-                    ? 'bg-zinc-700 text-white'
-                    : 'text-zinc-400 hover:text-white'
+                    ? 'bg-accent text-foreground'
+                    : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
                 <Users className="w-4 h-4" />
@@ -358,13 +358,13 @@ export function ApiKeyModal({
         {/* Preferences Tab */}
         {activeTab === 'preferences' && mounted && (
           <div className="space-y-4 py-2">
-            <p className="text-sm text-zinc-400">
+            <p className="text-sm text-muted-foreground">
               Personalize your AccountSignal experience. These settings are saved to this browser.
             </p>
 
             {/* Theme Selection */}
             <div className="space-y-2">
-              <label className="text-sm font-medium text-zinc-300">Theme</label>
+              <label className="text-sm font-medium text-foreground">Theme</label>
               <div className="grid grid-cols-3 gap-2">
                 {([
                   { value: 'light', label: 'Light', icon: Sun },
@@ -378,7 +378,7 @@ export function ApiKeyModal({
                     className={`flex items-center justify-center gap-2 p-3 rounded-lg border transition-all ${
                       theme === value
                         ? 'border-emerald-500 bg-emerald-500/10 text-white'
-                        : 'border-zinc-700 hover:border-zinc-600 text-zinc-400 hover:text-white'
+                        : 'border-border hover:border-muted-foreground text-muted-foreground hover:text-foreground'
                     }`}
                   >
                     <Icon className="w-4 h-4" />
@@ -390,7 +390,7 @@ export function ApiKeyModal({
 
             {/* Stock Chart Toggle */}
             <div className="space-y-2">
-              <label className="text-sm font-medium text-zinc-300">Display</label>
+              <label className="text-sm font-medium text-foreground">Display</label>
               <button
                 type="button"
                 onClick={() => {
@@ -401,18 +401,18 @@ export function ApiKeyModal({
                 className={`w-full flex items-center justify-between p-3 rounded-lg border transition-all text-left ${
                   stockChartEnabled
                     ? 'border-emerald-500 bg-emerald-500/10'
-                    : 'border-zinc-700 hover:border-zinc-600'
+                    : 'border-border hover:border-muted-foreground'
                 }`}
               >
                 <div className="flex items-center gap-3">
-                  <LineChart className={`w-4 h-4 ${stockChartEnabled ? 'text-emerald-400' : 'text-zinc-500'}`} />
+                  <LineChart className={`w-4 h-4 ${stockChartEnabled ? 'text-emerald-400' : 'text-muted-foreground'}`} />
                   <div>
                     <div className="font-medium text-sm text-white">Stock Chart</div>
-                    <div className="text-xs text-zinc-500">Show live stock quotes for public companies</div>
+                    <div className="text-xs text-muted-foreground">Show live stock quotes for public companies</div>
                   </div>
                 </div>
                 <div className={`w-9 h-5 rounded-full transition-colors flex items-center ${
-                  stockChartEnabled ? 'bg-emerald-500 justify-end' : 'bg-zinc-600 justify-start'
+                  stockChartEnabled ? 'bg-emerald-500 justify-end' : 'bg-muted-foreground/40 justify-start'
                 }`}>
                   <div className="w-4 h-4 rounded-full bg-white mx-0.5" />
                 </div>
@@ -426,7 +426,7 @@ export function ApiKeyModal({
           <div className="space-y-4 py-2">
             {/* Provider Selection */}
             <div className="space-y-2">
-              <label className="text-sm font-medium text-zinc-300">AI Provider</label>
+              <label className="text-sm font-medium text-foreground">AI Provider</label>
               <div className="grid grid-cols-2 gap-2">
                 {providers.map((p) => {
                   const info = PROVIDER_INFO[p];
@@ -437,7 +437,7 @@ export function ApiKeyModal({
                       className={`flex items-center gap-2 p-3 rounded-lg border transition-all ${
                         selectedProvider === p
                           ? 'border-emerald-500 bg-emerald-500/10 text-white'
-                          : 'border-zinc-700 hover:border-zinc-600 text-zinc-400 hover:text-white'
+                          : 'border-border hover:border-muted-foreground text-muted-foreground hover:text-foreground'
                       }`}
                     >
                       <div className="flex-1 text-left">
@@ -457,11 +457,11 @@ export function ApiKeyModal({
 
             {/* Model Selection */}
             <div className="space-y-2">
-              <label className="text-sm font-medium text-zinc-300">Model</label>
+              <label className="text-sm font-medium text-foreground">Model</label>
               <select
                 value={selectedModel}
                 onChange={(e) => setSelectedModel(e.target.value)}
-                className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+                className="w-full bg-card border border-border rounded-lg px-3 py-2 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
               >
                 {provider.models.map((model) => (
                   <option key={model.id} value={model.id}>
@@ -474,7 +474,7 @@ export function ApiKeyModal({
             {/* API Key Input */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <label className="text-sm font-medium text-zinc-300 flex items-center gap-2">
+                <label className="text-sm font-medium text-foreground flex items-center gap-2">
                   <Key className="w-4 h-4" />
                   {provider.name} API Key
                 </label>
@@ -495,12 +495,12 @@ export function ApiKeyModal({
                     value={apiKey}
                     onChange={(e) => setApiKey(e.target.value)}
                     placeholder={`Enter your ${provider.name} API key`}
-                    className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500 pr-10"
+                    className="bg-card border-border text-foreground placeholder:text-muted-foreground pr-10"
                   />
                   <button
                     type="button"
                     onClick={() => setShowKey(!showKey)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                   >
                     {showKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -510,7 +510,7 @@ export function ApiKeyModal({
                   variant="outline"
                   onClick={testApiKey}
                   disabled={!apiKey.trim() || testingKey}
-                  className="border-zinc-700 text-zinc-300 hover:text-white hover:bg-zinc-800 whitespace-nowrap"
+                  className="border-border text-muted-foreground hover:text-foreground hover:bg-accent whitespace-nowrap"
                 >
                   {testingKey ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
@@ -543,7 +543,7 @@ export function ApiKeyModal({
 
               {/* Show configured status if no test run */}
               {!keyTestResult && apiKey && (
-                <div className="flex items-center gap-2 text-xs text-zinc-400">
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   <Check className="w-3 h-3" />
                   API key configured - click Test to verify
                 </div>
@@ -569,13 +569,13 @@ export function ApiKeyModal({
         {/* Web Search Tab */}
         {activeTab === 'websearch' && (
           <div className="space-y-4 py-2">
-            <p className="text-sm text-zinc-400">
+            <p className="text-sm text-muted-foreground">
               Web search augments AI providers (OpenAI, Anthropic) that don&apos;t have built-in web grounding with real-time data.
             </p>
 
             {/* Search Engine Selection */}
             <div className="space-y-2">
-              <label className="text-sm font-medium text-zinc-300">Search Engine</label>
+              <label className="text-sm font-medium text-foreground">Search Engine</label>
               <div className="space-y-2">
                 {/* Tavily Option */}
                 <button
@@ -583,11 +583,11 @@ export function ApiKeyModal({
                   className={`w-full flex items-center gap-3 p-3 rounded-lg border transition-all text-left ${
                     webSearchProvider === 'tavily'
                       ? 'border-purple-500 bg-purple-500/10'
-                      : 'border-zinc-700 hover:border-zinc-600'
+                      : 'border-border hover:border-muted-foreground'
                   }`}
                 >
                   <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                    webSearchProvider === 'tavily' ? 'border-purple-500' : 'border-zinc-600'
+                    webSearchProvider === 'tavily' ? 'border-purple-500' : 'border-muted-foreground/30'
                   }`}>
                     {webSearchProvider === 'tavily' && (
                       <div className="w-2 h-2 rounded-full bg-purple-500" />
@@ -595,7 +595,7 @@ export function ApiKeyModal({
                   </div>
                   <div className="flex-1">
                     <div className="font-medium text-sm text-white">Tavily</div>
-                    <div className="text-xs text-zinc-500">AI-powered search, recommended for accuracy</div>
+                    <div className="text-xs text-muted-foreground">AI-powered search, recommended for accuracy</div>
                   </div>
                   <span className="text-xs px-2 py-0.5 rounded bg-purple-500/20 text-purple-400">Recommended</span>
                 </button>
@@ -606,11 +606,11 @@ export function ApiKeyModal({
                   className={`w-full flex items-center gap-3 p-3 rounded-lg border transition-all text-left ${
                     webSearchProvider === 'claude'
                       ? 'border-orange-500 bg-orange-500/10'
-                      : 'border-zinc-700 hover:border-zinc-600'
+                      : 'border-border hover:border-muted-foreground'
                   }`}
                 >
                   <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                    webSearchProvider === 'claude' ? 'border-orange-500' : 'border-zinc-600'
+                    webSearchProvider === 'claude' ? 'border-orange-500' : 'border-muted-foreground/30'
                   }`}>
                     {webSearchProvider === 'claude' && (
                       <div className="w-2 h-2 rounded-full bg-orange-500" />
@@ -618,7 +618,7 @@ export function ApiKeyModal({
                   </div>
                   <div className="flex-1">
                     <div className="font-medium text-sm text-white">Claude Web Search</div>
-                    <div className="text-xs text-zinc-500">Uses Anthropic API key, powered by Brave</div>
+                    <div className="text-xs text-muted-foreground">Uses Anthropic API key, powered by Brave</div>
                   </div>
                 </button>
 
@@ -628,11 +628,11 @@ export function ApiKeyModal({
                   className={`w-full flex items-center gap-3 p-3 rounded-lg border transition-all text-left ${
                     webSearchProvider === 'websearchapi'
                       ? 'border-cyan-500 bg-cyan-500/10'
-                      : 'border-zinc-700 hover:border-zinc-600'
+                      : 'border-border hover:border-muted-foreground'
                   }`}
                 >
                   <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                    webSearchProvider === 'websearchapi' ? 'border-cyan-500' : 'border-zinc-600'
+                    webSearchProvider === 'websearchapi' ? 'border-cyan-500' : 'border-muted-foreground/30'
                   }`}>
                     {webSearchProvider === 'websearchapi' && (
                       <div className="w-2 h-2 rounded-full bg-cyan-500" />
@@ -640,7 +640,7 @@ export function ApiKeyModal({
                   </div>
                   <div className="flex-1">
                     <div className="font-medium text-sm text-white">WebSearchAPI</div>
-                    <div className="text-xs text-zinc-500">Powered by Serper, fast results</div>
+                    <div className="text-xs text-muted-foreground">Powered by Serper, fast results</div>
                   </div>
                 </button>
 
@@ -649,20 +649,20 @@ export function ApiKeyModal({
                   onClick={() => setWebSearchProvider('none')}
                   className={`w-full flex items-center gap-3 p-3 rounded-lg border transition-all text-left ${
                     webSearchProvider === 'none'
-                      ? 'border-zinc-500 bg-zinc-500/10'
-                      : 'border-zinc-700 hover:border-zinc-600'
+                      ? 'border-muted-foreground bg-muted'
+                      : 'border-border hover:border-muted-foreground'
                   }`}
                 >
                   <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                    webSearchProvider === 'none' ? 'border-zinc-500' : 'border-zinc-600'
+                    webSearchProvider === 'none' ? 'border-muted-foreground' : 'border-muted-foreground/30'
                   }`}>
                     {webSearchProvider === 'none' && (
-                      <div className="w-2 h-2 rounded-full bg-zinc-500" />
+                      <div className="w-2 h-2 rounded-full bg-muted-foreground" />
                     )}
                   </div>
                   <div className="flex-1">
                     <div className="font-medium text-sm text-white">Disabled</div>
-                    <div className="text-xs text-zinc-500">Use AI knowledge only (no real-time data)</div>
+                    <div className="text-xs text-muted-foreground">Use AI knowledge only (no real-time data)</div>
                   </div>
                 </button>
               </div>
@@ -693,12 +693,12 @@ export function ApiKeyModal({
                       value={tavilyKey}
                       onChange={(e) => setTavilyKey(e.target.value)}
                       placeholder="tvly-..."
-                      className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500 pr-10"
+                      className="bg-card border-border text-foreground placeholder:text-muted-foreground pr-10"
                     />
                     <button
                       type="button"
                       onClick={() => setShowTavilyKey(!showTavilyKey)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                     >
                       {showTavilyKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
@@ -790,12 +790,12 @@ export function ApiKeyModal({
                       value={webKey}
                       onChange={(e) => setWebKey(e.target.value)}
                       placeholder="Enter your WebSearchAPI key"
-                      className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500 pr-10"
+                      className="bg-card border-border text-foreground placeholder:text-muted-foreground pr-10"
                     />
                     <button
                       type="button"
                       onClick={() => setShowWebKey(!showWebKey)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                     >
                       {showWebKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
@@ -863,7 +863,7 @@ export function ApiKeyModal({
         {activeTab === 'users' && (
           <div className="space-y-4 py-2">
             <div className="flex items-center justify-between">
-              <p className="text-sm text-zinc-400">
+              <p className="text-sm text-muted-foreground">
                 Manage registered users
               </p>
               <Button
@@ -871,7 +871,7 @@ export function ApiKeyModal({
                 size="sm"
                 onClick={fetchUsers}
                 disabled={loadingUsers}
-                className="border-zinc-700 text-zinc-400 hover:text-white"
+                className="border-border text-muted-foreground hover:text-foreground"
               >
                 {loadingUsers ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -899,10 +899,10 @@ export function ApiKeyModal({
 
             {loadingUsers && users.length === 0 ? (
               <div className="flex items-center justify-center py-8">
-                <Loader2 className="w-6 h-6 animate-spin text-zinc-500" />
+                <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
               </div>
             ) : users.length === 0 ? (
-              <div className="text-center py-8 text-zinc-500">
+              <div className="text-center py-8 text-muted-foreground">
                 <Users className="w-10 h-10 mx-auto mb-2 opacity-50" />
                 <p>No users found</p>
               </div>
@@ -911,13 +911,13 @@ export function ApiKeyModal({
                 {users.map((user) => (
                   <div
                     key={user.id}
-                    className="flex items-center justify-between p-3 bg-zinc-800/50 rounded-lg border border-zinc-700"
+                    className="flex items-center justify-between p-3 bg-card/50 rounded-lg border border-border"
                   >
                     <div className="flex items-center gap-3 min-w-0 flex-1">
                       <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
                         user.role === 'admin'
                           ? 'bg-amber-500/20 text-amber-400'
-                          : 'bg-zinc-700 text-zinc-400'
+                          : 'bg-muted text-muted-foreground'
                       }`}>
                         {user.role === 'admin' ? (
                           <Shield className="w-4 h-4" />
@@ -936,8 +936,8 @@ export function ApiKeyModal({
                             </span>
                           )}
                         </div>
-                        <div className="text-xs text-zinc-500 truncate">{user.email}</div>
-                        <div className="text-xs text-zinc-600">
+                        <div className="text-xs text-muted-foreground truncate">{user.email}</div>
+                        <div className="text-xs text-muted-foreground/70">
                           Joined {new Date(user.created_at).toLocaleDateString()}
                         </div>
                       </div>
@@ -953,7 +953,7 @@ export function ApiKeyModal({
                           className={`${
                             user.role === 'admin'
                               ? 'text-amber-400 hover:text-amber-300 hover:bg-amber-500/10'
-                              : 'text-zinc-500 hover:text-amber-400 hover:bg-amber-500/10'
+                              : 'text-muted-foreground hover:text-amber-400 hover:bg-amber-500/10'
                           }`}
                           title={user.role === 'admin' ? 'Demote to user' : 'Promote to admin'}
                         >
@@ -973,7 +973,7 @@ export function ApiKeyModal({
                           size="sm"
                           onClick={() => deleteUser(user.id)}
                           disabled={deletingUserId === user.id}
-                          className="text-zinc-500 hover:text-red-400 hover:bg-red-500/10"
+                          className="text-muted-foreground hover:text-red-400 hover:bg-red-500/10"
                         >
                           {deletingUserId === user.id ? (
                             <Loader2 className="w-4 h-4 animate-spin" />
@@ -988,19 +988,19 @@ export function ApiKeyModal({
               </div>
             )}
 
-            <div className="text-xs text-zinc-500 pt-2 border-t border-zinc-800">
+            <div className="text-xs text-muted-foreground pt-2 border-t border-border">
               Total: {users.length} user{users.length !== 1 ? 's' : ''} ({users.filter(u => u.role === 'admin').length} admin{users.filter(u => u.role === 'admin').length !== 1 ? 's' : ''})
             </div>
           </div>
         )}
 
-        <div className="flex gap-3 justify-end pt-2 border-t border-zinc-800">
+        <div className="flex gap-3 justify-end pt-2 border-t border-border">
           {isAdmin ? (
             <>
               <Button
                 variant="outline"
                 onClick={() => onOpenChange(false)}
-                className="border-zinc-700 text-zinc-400 hover:text-white hover:bg-zinc-800"
+                className="border-border text-muted-foreground hover:text-foreground hover:bg-accent"
               >
                 Cancel
               </Button>
@@ -1022,7 +1022,7 @@ export function ApiKeyModal({
           ) : (
             <Button
               onClick={() => onOpenChange(false)}
-              className="bg-zinc-700 hover:bg-zinc-600 text-white"
+              className="bg-accent hover:bg-accent/80 text-foreground"
             >
               Close
             </Button>
