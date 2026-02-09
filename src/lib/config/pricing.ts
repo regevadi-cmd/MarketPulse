@@ -48,7 +48,7 @@ export const AI_PRICING: Record<string, Record<string, ModelPricing>> = {
 
 // Search Provider Pricing (USD per query)
 export const SEARCH_PRICING: Record<string, SearchPricing> = {
-  tavily: { perQuery: 0.01 },
+  tavily: { perQuery: 0.008 },
   claude: { perQuery: 0.01 }, // $10 per 1000 searches
   websearchapi: { perQuery: 0.005 },
   none: { perQuery: 0 },
@@ -56,6 +56,9 @@ export const SEARCH_PRICING: Record<string, SearchPricing> = {
 
 // Number of Tavily queries per analysis (approximate)
 export const TAVILY_QUERIES_PER_ANALYSIS = 7; // news, case studies, info, investor docs, competitors, leadership, regulatory
+
+// Tavily free tier: 1,000 API credits per month (Researcher plan)
+export const TAVILY_FREE_MONTHLY_CREDITS = 1000;
 
 /**
  * Calculate AI cost based on token usage
@@ -97,6 +100,9 @@ export function estimateTokens(text: string): number {
  * Format cost for display
  */
 export function formatCost(cost: number): string {
+  if (cost === 0) {
+    return '$0.00';
+  }
   if (cost < 0.01) {
     return `$${cost.toFixed(4)}`;
   }

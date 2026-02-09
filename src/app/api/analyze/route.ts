@@ -136,6 +136,20 @@ export async function POST(request: NextRequest) {
 
         console.log(`Returning cached analysis for "${companyName}" (${ageMinutes} minutes old)`);
 
+        // Log cached usage so it appears in activity tracking
+        logUsage(supabase, {
+          userId: user?.id,
+          userEmail: user?.email,
+          companyName: companyName.trim(),
+          aiProvider: cached.provider,
+          aiModel: cached.model || PROVIDER_INFO[cached.provider as ProviderName]?.defaultModel || 'unknown',
+          promptText: '',
+          responseText: '',
+          searchProvider: cached.web_search_used ? 'tavily' : 'none',
+          searchQueriesUsed: 0,
+          cached: true,
+        }).catch(err => console.warn('Usage logging failed:', err));
+
         return NextResponse.json<AnalyzeResponse>({
           data: cached.analysis_data,
           cached: true,

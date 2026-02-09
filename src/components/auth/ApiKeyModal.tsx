@@ -257,7 +257,7 @@ export function ApiKeyModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-zinc-900 border-zinc-800 text-white sm:max-w-lg">
+      <DialogContent className="bg-zinc-900 border-zinc-800 text-white sm:max-w-lg overflow-hidden">
         <DialogHeader>
           <DialogTitle className="text-xl flex items-center gap-2">
             <Settings className="w-5 h-5 text-zinc-400" />
