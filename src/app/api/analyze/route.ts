@@ -226,9 +226,7 @@ export async function POST(request: NextRequest) {
             caseStudies: caseStudyResults.map(r => ({ title: r.title, url: r.url, description: r.content })),
             info: { sources: infoResults.sources.map(r => ({ title: r.title, url: r.url, description: r.content })) },
             investorDocs: investorDocsResults.map(r => ({ title: r.title, url: r.url, description: r.content })),
-            investorPresentation: investorPresentationResults.length > 0
-              ? { title: investorPresentationResults[0].title, url: investorPresentationResults[0].url, description: investorPresentationResults[0].content }
-              : null,
+            investorPresentation: investorPresentationResults.map(r => ({ title: r.title, url: r.url, description: r.content })),
             competitorMentions: competitorMentionsResults,
             leadershipChanges: leadershipResults.map(r => ({ title: r.title, url: r.url, description: r.content })),
             regulatoryEvents: regulatoryResults
@@ -251,9 +249,7 @@ export async function POST(request: NextRequest) {
             caseStudies: caseStudyResults.map(r => ({ title: r.title, url: r.url, description: r.content })),
             info: { sources: infoResults.sources.map(r => ({ title: r.title, url: r.url, description: r.content })) },
             investorDocs: investorDocsResults.map(r => ({ title: r.title, url: r.url, description: r.content })),
-            investorPresentation: investorPresentationResults.length > 0
-              ? { title: investorPresentationResults[0].title, url: investorPresentationResults[0].url, description: investorPresentationResults[0].content }
-              : null,
+            investorPresentation: investorPresentationResults.map(r => ({ title: r.title, url: r.url, description: r.content })),
             leadershipChanges: leadershipResults.map(r => ({ title: r.title, url: r.url, description: r.content })),
             regulatoryEvents: regulatoryResults,
             competitorMentions: competitorResults
@@ -273,9 +269,7 @@ export async function POST(request: NextRequest) {
             caseStudies: caseStudyResults,
             info: infoResults,
             investorDocs: investorDocsResults,
-            investorPresentation: investorPresentationResults.length > 0
-              ? { title: investorPresentationResults[0].title, url: investorPresentationResults[0].url, description: investorPresentationResults[0].description }
-              : null
+            investorPresentation: investorPresentationResults.map(r => ({ title: r.title, url: r.url, description: r.description }))
           };
         }
       } catch (err) {
@@ -332,11 +326,19 @@ export async function POST(request: NextRequest) {
       }
 
       // Prepend investor presentation as the first item
-      if (webSearchData.investorPresentation) {
-        const pres = webSearchData.investorPresentation;
+      // Filter to actual documents — exclude video sites, social media, and generic pages
+      const presResult = (webSearchData.investorPresentation || []).find(
+        (r: { title: string; url: string; description: string }) => {
+          const urlLower = r.url.toLowerCase();
+          const excluded = ['youtube.com', 'youtu.be', 'vimeo.com', 'twitter.com', 'x.com',
+            'facebook.com', 'linkedin.com', 'reddit.com', 'wikipedia.org'];
+          return !excluded.some(domain => urlLower.includes(domain));
+        }
+      );
+      if (presResult) {
         analysis.investorDocs = [
-          { title: pres.title, url: pres.url, summary: pres.description },
-          ...analysis.investorDocs.filter(d => d.url !== pres.url)
+          { title: presResult.title, url: presResult.url, summary: presResult.description },
+          ...analysis.investorDocs.filter(d => d.url !== presResult.url)
         ];
       } else {
         analysis.investorDocs = [

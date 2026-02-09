@@ -109,10 +109,11 @@ export async function tavilySearchInvestorPresentation(
   companyName: string,
   apiKey: string
 ): Promise<TavilySearchResult[]> {
+  const currentYear = new Date().getFullYear();
   const response = await tavilySearch(
-    `"${companyName}" investor presentation latest investor day`,
+    `"${companyName}" investor presentation OR investor day filetype:pdf OR site:ir OR site:investor ${currentYear} OR ${currentYear - 1}`,
     apiKey,
-    { maxResults: 1, includeAnswer: false }
+    { maxResults: 5, includeAnswer: false }
   );
   return response.results;
 }

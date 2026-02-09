@@ -117,10 +117,11 @@ export async function searchInvestorPresentation(
   companyName: string,
   apiKey: string
 ): Promise<WebSearchResult[]> {
+  const currentYear = new Date().getFullYear();
   const response = await searchWeb(
-    `"${companyName}" investor presentation latest investor day`,
+    `"${companyName}" investor presentation OR investor day filetype:pdf OR site:ir OR site:investor ${currentYear} OR ${currentYear - 1}`,
     apiKey,
-    { maxResults: 1, includeContent: false, includeAnswer: false, timeframe: 'year' }
+    { maxResults: 5, includeContent: false, includeAnswer: false, timeframe: 'year' }
   );
   return response.organic;
 }
