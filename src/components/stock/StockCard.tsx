@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { TrendingUp, TrendingDown, RefreshCw, Search, ChevronRight } from 'lucide-react';
+import { TrendingUp, TrendingDown, RefreshCw, Search, ChevronRight, EyeOff } from 'lucide-react';
 import { CompanyInfo } from '@/components/layout/Header';
 import { SectionCard } from '../analysis/SectionCard';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -42,6 +42,7 @@ interface StockCardProps {
   ticker?: string;
   companyName?: string;
   companyInfo?: CompanyInfo | null;
+  onHide?: () => void;
 }
 
 type TimeRange = '1d' | '5d' | '1mo' | 'ytd' | '1y' | '2y' | '5y';
@@ -251,7 +252,7 @@ function StockChart({
   );
 }
 
-export function StockCard({ ticker: initialTicker, companyName, companyInfo }: StockCardProps) {
+export function StockCard({ ticker: initialTicker, companyName, companyInfo, onHide }: StockCardProps) {
   const [data, setData] = useState<StockData | null>(null);
   const [loading, setLoading] = useState(false);
   const [searching, setSearching] = useState(false);
@@ -511,6 +512,15 @@ export function StockCard({ ticker: initialTicker, companyName, companyInfo }: S
               <RefreshCw className={`w-4 h-4 ${loading || chartLoading ? 'animate-spin' : ''}`} />
               <span className="text-xs font-medium hidden sm:inline">Refresh</span>
             </button>
+            {onHide && (
+              <button
+                onClick={onHide}
+                className="flex items-center gap-1.5 text-muted-foreground hover:text-red-400 px-2 py-1.5 rounded-lg hover:bg-red-500/10 border border-transparent hover:border-red-500/30 transition-colors"
+                title="Hide stock chart"
+              >
+                <EyeOff className="w-4 h-4" />
+              </button>
+            )}
           </div>
         </div>
 
