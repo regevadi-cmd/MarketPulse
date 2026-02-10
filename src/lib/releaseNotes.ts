@@ -10,6 +10,31 @@ export interface ReleaseNote {
 
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: '1.4.2',
+    date: '2026-02-10',
+    highlights: [
+      'Company search disambiguation with Yahoo Finance fallback',
+      'Unknown companies now surface real results instead of just "Search for this company"',
+    ],
+    changes: [
+      {
+        category: 'Added',
+        items: [
+          'Yahoo Finance search fallback when hardcoded list has weak or few matches',
+          'Source labels and section dividers in search dropdown (known vs Yahoo Finance)',
+          'Support for non-EQUITY quote types to surface private companies from Yahoo Finance',
+        ],
+      },
+      {
+        category: 'Changed',
+        items: [
+          'Search results now capped at 8 (hardcoded + Yahoo combined) for cleaner dropdown',
+          'Results tagged with source field (known/yahoo/custom) for UI grouping',
+        ],
+      },
+    ],
+  },
+  {
     version: '1.4.1',
     date: '2026-02-10',
     highlights: [
