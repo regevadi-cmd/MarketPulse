@@ -357,6 +357,9 @@ export async function POST(request: NextRequest) {
           summary: item.description,
           date: item.date
         }));
+      } else {
+        // Web search returned no relevant results — clear AI-generated placeholder text
+        analysis.techNews = [];
       }
 
       // Replace placeholder case studies with real web search results

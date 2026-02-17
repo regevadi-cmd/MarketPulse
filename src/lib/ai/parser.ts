@@ -433,7 +433,7 @@ export function parseTaggedResponse(text: string): AnalysisResult {
     investorDocs: parseListItems(parseTagContent(text, 'INVESTOR_DOCS')),
     keyPriorities: parseNumberedList(parseTagContent(text, 'KEY_PRIORITIES')),
     growthInitiatives: parseNumberedList(parseTagContent(text, 'GROWTH_INITIATIVES')),
-    techNews: parseListItems(parseTagContent(text, 'TECH_NEWS')),
+    techNews: parseListItems(parseTagContent(text, 'TECH_NEWS')).filter(item => item.url),
     caseStudies: parseListItems(parseTagContent(text, 'CASE_STUDIES')),
     competitorMentions: parseCompetitorMentions(parseTagContent(text, 'COMPETITOR_MENTIONS')),
     discoveredCompetitors: parseCompetitorList(parseTagContent(text, 'COMPLIANCE_VENDORS')),
