@@ -65,7 +65,7 @@ export async function tavilySearchCompanyNews(
   const response = await tavilySearch(
     `"${companyName}" AI adoption OR IT infrastructure OR digital transformation OR cloud migration OR technology strategy OR machine learning OR generative AI OR cybersecurity`,
     apiKey,
-    { maxResults: 15, includeAnswer: false, topic: 'news' }
+    { maxResults: 10, includeAnswer: false, topic: 'news' }
   );
   // Filter to only include results that actually mention the company
   const companyLower = companyName.toLowerCase();
@@ -91,42 +91,15 @@ export async function tavilySearchCaseStudies(
   return response.results;
 }
 
-export async function tavilySearchCompanyInfo(
-  companyName: string,
-  apiKey: string
-): Promise<{ answer: string; sources: TavilySearchResult[] }> {
-  const response = await tavilySearch(
-    `${companyName} company overview business strategy recent developments`,
-    apiKey,
-    { maxResults: 5, includeAnswer: true, searchDepth: 'advanced' }
-  );
-  return {
-    answer: response.answer || '',
-    sources: response.results
-  };
-}
-
 export async function tavilySearchInvestorDocs(
-  companyName: string,
-  apiKey: string
-): Promise<TavilySearchResult[]> {
-  const response = await tavilySearch(
-    `${companyName} investor relations SEC filing annual report 10-K`,
-    apiKey,
-    { maxResults: 5, includeAnswer: false }
-  );
-  return response.results;
-}
-
-export async function tavilySearchInvestorPresentation(
   companyName: string,
   apiKey: string
 ): Promise<TavilySearchResult[]> {
   const currentYear = new Date().getFullYear();
   const response = await tavilySearch(
-    `"${companyName}" investor presentation OR investor day filetype:pdf OR site:ir OR site:investor ${currentYear} OR ${currentYear - 1}`,
+    `"${companyName}" investor relations SEC filing annual report 10-K OR investor presentation OR investor day ${currentYear} OR ${currentYear - 1}`,
     apiKey,
-    { maxResults: 5, includeAnswer: false }
+    { maxResults: 8, includeAnswer: false }
   );
   return response.results;
 }
@@ -142,10 +115,10 @@ export async function tavilyConsolidatedCompetitorSearch(
 ): Promise<{ title: string; url: string; content: string }[]> {
   if (competitors.length === 0) return [];
 
-  // Chunk competitors into groups of 5 to keep queries short enough for search APIs
+  // Chunk competitors into groups of 8 to reduce API calls while keeping queries effective
   const chunks: string[][] = [];
-  for (let i = 0; i < competitors.length; i += 5) {
-    chunks.push(competitors.slice(i, i + 5));
+  for (let i = 0; i < competitors.length; i += 8) {
+    chunks.push(competitors.slice(i, i + 8));
   }
 
   const queries: string[] = [];
@@ -287,12 +260,10 @@ export async function tavilySearchRegulatoryEvents(
 ): Promise<RegulatoryEvent[]> {
   const events: RegulatoryEvent[] = [];
 
-  // Multiple targeted searches for different types of regulatory events
+  // Consolidated regulatory event searches (2 broad queries instead of 4)
   const searchQueries = [
-    `"${companyName}" SEC fine penalty settlement enforcement`,
-    `"${companyName}" FINRA fine disciplinary action`,
-    `"${companyName}" regulatory penalty settlement million`,
-    `"${companyName}" DOJ settlement charges`,
+    `"${companyName}" SEC OR FINRA fine OR penalty OR settlement OR enforcement OR disciplinary`,
+    `"${companyName}" regulatory OR DOJ penalty OR settlement OR charges OR investigation million`,
   ];
 
   try {

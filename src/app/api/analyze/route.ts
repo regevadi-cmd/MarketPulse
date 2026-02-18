@@ -3,7 +3,7 @@ import { createAIProvider } from '@/lib/ai/factory';
 import { AnalyzeRequest, AnalyzeResponse, ApiError, CacheMetadata } from '@/types/api';
 import { ProviderName, PROVIDER_INFO, AnalysisResult } from '@/types/analysis';
 import { searchCompanyNews, searchCompanyCaseStudies, searchCompanyInfo, searchInvestorDocuments, searchInvestorPresentation } from '@/lib/services/webSearch';
-import { tavilySearchCompanyNews, tavilySearchCaseStudies, tavilySearchCompanyInfo, tavilySearchInvestorDocs, tavilySearchInvestorPresentation, tavilyConsolidatedCompetitorSearch, tavilySearchLeadershipChanges, tavilySearchRegulatoryEvents, RegulatoryEvent } from '@/lib/services/tavilySearch';
+import { tavilySearchCompanyNews, tavilySearchCaseStudies, tavilySearchInvestorDocs, tavilyConsolidatedCompetitorSearch, tavilySearchLeadershipChanges, tavilySearchRegulatoryEvents, RegulatoryEvent } from '@/lib/services/tavilySearch';
 import { claudeSearchCompanyNews, claudeSearchCaseStudies, claudeSearchCompanyInfo, claudeSearchInvestorDocs, claudeSearchInvestorPresentation, claudeSearchLeadershipChanges, claudeSearchRegulatoryEvents, claudeConsolidatedCompetitorSearch } from '@/lib/services/claudeSearch';
 import { extractCompetitorMentions } from '@/lib/services/competitorExtraction';
 import { createClient } from '@/lib/supabase/server';
@@ -231,12 +231,10 @@ export async function POST(request: NextRequest) {
       try {
         if (useTavily) {
           // Use Tavily for web search (competitor search handled separately after AI analysis)
-          const [newsResults, caseStudyResults, infoResults, investorDocsResults, investorPresentationResults, leadershipResults, regulatoryResults] = await Promise.all([
+          const [newsResults, caseStudyResults, investorDocsResults, leadershipResults, regulatoryResults] = await Promise.all([
             tavilySearchCompanyNews(companyName.trim(), tavilyApiKey!),
             tavilySearchCaseStudies(companyName.trim(), tavilyApiKey!),
-            tavilySearchCompanyInfo(companyName.trim(), tavilyApiKey!),
             tavilySearchInvestorDocs(companyName.trim(), tavilyApiKey!),
-            tavilySearchInvestorPresentation(companyName.trim(), tavilyApiKey!),
             tavilySearchLeadershipChanges(companyName.trim(), tavilyApiKey!),
             tavilySearchRegulatoryEvents(companyName.trim(), tavilyApiKey!)
           ]);
@@ -244,9 +242,9 @@ export async function POST(request: NextRequest) {
           webSearchData = {
             news: newsResults.map(r => ({ title: r.title, url: r.url, description: r.content, date: r.published_date })),
             caseStudies: caseStudyResults.map(r => ({ title: r.title, url: r.url, description: r.content })),
-            info: { sources: infoResults.sources.map(r => ({ title: r.title, url: r.url, description: r.content })) },
+            info: { sources: [] as { title: string; url: string; description: string }[] },
             investorDocs: investorDocsResults.map(r => ({ title: r.title, url: r.url, description: r.content })),
-            investorPresentation: investorPresentationResults.map(r => ({ title: r.title, url: r.url, description: r.content })),
+            investorPresentation: [] as { title: string; url: string; description: string }[],
             leadershipChanges: leadershipResults.map(r => ({ title: r.title, url: r.url, description: r.content })),
             regulatoryEvents: regulatoryResults
           };
@@ -515,7 +513,7 @@ export async function POST(request: NextRequest) {
       promptText: estimatedPrompt,
       responseText: JSON.stringify(analysis),
       searchProvider: webSearchUsed ? (useTavily ? 'tavily' : useClaudeSearch ? 'claude' : 'websearchapi') : 'none',
-      searchQueriesUsed: webSearchUsed ? 7 : 0, // 7 Tavily queries per analysis
+      searchQueriesUsed: webSearchUsed ? 10 : 0, // ~10 Tavily queries per analysis (5 initial + ~5 competitor)
       cached: false,
       durationMs,
     }).catch(err => console.warn('Usage logging failed:', err));
